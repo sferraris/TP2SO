@@ -1,0 +1,29 @@
+#ifndef _CLIB_H
+#define _CLIB_H
+#include <asmlib.h>
+#include <stdint.h>
+
+void putChar(char c);
+void printf(char * buffer);
+char getChar();
+void switchWindow();
+void printRed(char * buffer);
+void getmem(int num, uint64_t*buffer);
+void putDec(uint64_t num);
+void putHex(uint64_t num);
+void putBin(uint64_t num);
+void putDouble(double num);
+int strcmp(char * str1, char * str2);
+int strcmpParams(char * str1, char * str2);
+int getHours();
+int getMinutes();
+int getSeconds();
+char * getCpuVendor(char * buffer);
+char * getCpuBrand(char * buffer);
+int getCpuModel();
+int* receiveRegisters();
+void putFilledHex (uint64_t num);
+uint64_t getTemp();
+int stringHexToInt(char * s);
+
+#endif

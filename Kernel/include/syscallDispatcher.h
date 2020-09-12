@@ -1,0 +1,12 @@
+#ifndef _SYSCALLDISPATCHER_H
+#define _SYSCALLDISPATCHER_H
+#include <stdint.h>
+#include <video_driver.h>
+#include <keyboard.h>
+#include <lib.h>
+#include <programData.h>
+#include <libasm.h>
+
+void *syscallDispatcher(int p1, void* p2, void* p3);
+
+#endif
