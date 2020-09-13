@@ -2,8 +2,7 @@
 
 static unsigned long ticks = 0;
 
-void timer_handler()
-{
+void timer_handler() {
 	ticks++;
 	if (ticks%18==0)
 		printBar();
@@ -11,12 +10,10 @@ void timer_handler()
 		unprintBar();
 }
 
-int ticks_elapsed() 
-{
+int ticks_elapsed() {
 	return ticks;
 }
 
-int seconds_elapsed()
-{
+int seconds_elapsed() {
 	return ticks / 18;
 }

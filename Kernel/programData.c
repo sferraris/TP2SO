@@ -1,32 +1,13 @@
 #include <programData.h>
 
-struct ProgramData{
-    uint64_t rip;
-    uint64_t rsp;
-};
+uint64_t rip;
+uint64_t rsp;
 
-struct ProgramData windowsData[2];
-int program = 1;
-
-void switchProgram()
-{
-    program = 1-program;
+void saveProgramData(uint64_t newrip, uint64_t newrsp) {
+    rip = newrip;
+    rsp = newrsp;
 }
 
-void initData(struct ProgramData *wind, uint64_t rip, uint64_t rsp)
-{
-    wind->rip = rip;
-    wind->rsp = rsp;
-}
-
-void saveProgramData(uint64_t rip, uint64_t rsp)
-{
-    struct ProgramData WindowData;
-    initData(&WindowData, rip, rsp);
-    windowsData[program] = WindowData;
-}
-
-void updateIp()
-{
-    rebootProgram(windowsData[program].rip, windowsData[program].rsp);
+void updateIp() {
+    rebootProgram(rip, rsp);
 }

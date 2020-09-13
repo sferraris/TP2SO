@@ -1,6 +1,5 @@
 GLOBAL write
 GLOBAL read
-GLOBAL change
 GLOBAL getTime
 GLOBAL putNum
 GLOBAL getCpuData
@@ -38,23 +37,12 @@ section .text
         mov rsp, rbp
         pop rbp
         ret
-
-    change:
-        push rbp
-        mov rbp, rsp
-        push rax
-        mov rax, 3
-        int 80h
-        pop rax
-        mov rsp, rbp
-        pop rbp
-        ret
     
     getTime:
         push rbp
         mov rbp, rsp
         push rbx
-        mov rax, 4
+        mov rax, 3
         mov rbx, rdi
         int 80h
         pop rbx
@@ -67,7 +55,7 @@ section .text
 	    mov rbp, rsp
 	    push rbx
         push rcx
-	    mov rax, 5
+	    mov rax, 4
         mov rbx, rdi
         mov rcx, rsi
 	    int 80h
@@ -80,7 +68,7 @@ section .text
     readCpuModel:
 	    push rbp
 	    mov rbp, rsp
-	    mov rax, 6
+	    mov rax, 5
 	    int 80h
 	    mov rsp, rbp
 	    pop rbp
@@ -89,7 +77,7 @@ section .text
     readRegisters:
 	    push rbp
 	    mov rbp, rsp
-	    mov rax, 7
+	    mov rax, 6
 	    int 80h
 	    mov rsp, rbp
 	    pop rbp
@@ -101,7 +89,7 @@ section .text
         push rax
         push rbx
         push rcx
-        mov rax, 8
+        mov rax, 7
         mov rbx, [rbp + 8]
         mov rcx, rbp
         int 80h
@@ -115,7 +103,7 @@ section .text
     getCpuTemp:
         push rbp
 	    mov rbp, rsp
-        mov rax, 9
+        mov rax, 8
         int 80h
 	    mov rsp, rbp
 	    pop rbp

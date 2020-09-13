@@ -1,10 +1,10 @@
 #ifndef _ASMLIB_H
 #define _ASMLIB_H
+
 #include <stdint.h>
 
 void write (int fd, void* buffer);
 char read();
-void change();
 int getTime (int fd);
 void putNum(int fd, uint64_t num);
 char * getCpuData(int fd, char * buffer);

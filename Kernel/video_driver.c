@@ -41,34 +41,7 @@ struct vbe_mode_info_structure {
 struct vbe_mode_info_structure * screen_info = 0x5C00;
 char operationBuffer[100] = {'0'};
 
-struct Window {
-    int firstPosition;
-    int lastPosition;
-    int curX;
-    int curY;
-};
-
-struct Window windows[2];
-int window = 0;
-
-void initStruct(struct Window *wind, int firstP, int lastP)
-{
-    wind->firstPosition = firstP;
-    wind->lastPosition = lastP;
-    wind->curX = firstP;
-    wind->curY = FLOOR;
-}
-
-void initializeVideo()
-{
-    struct Window leftWindow;
-    struct Window rightWindow;
-    initStruct(&leftWindow, BASESIZE + BORDER, WIDTH - WINDIF - BORDER );
-    initStruct(&rightWindow, WINDIF + BORDER + BASESIZE, WIDTH - BORDER );
-    windows[0] = leftWindow;
-    windows[1] = rightWindow;
-    changeWindow();
-} 
+int curX = FIRSTPOS;
 
 char font[128][8] = {
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)
@@ -201,161 +174,133 @@ char font[128][8] = {
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
 };
 
-char * getPos(int x, int y)
-{
+void initializeVideo() {
+    curX = FIRSTPOS;
+    printBorder();
+} 
+
+char * getPos(int x, int y) {
     return screen_info->framebuffer + (x + y*WIDTH)*3;
 }
 
-void putRGB(char* pos, int rgb)
-{
+void putRGB(char* pos, int rgb) {
     int div = rgb;
     int resto, i;
-    for (i = 0; i < 3; i++)
-    {
+    for (i = 0; i < 3; i++) {
         resto = div % 2;
         div = div / 2;
         pos[i] = ((resto == 0)? 0 : 255);
     }
 }
 
-void printPixel(int x, int y,int size, int rgb)
-{
-    for (int i = 0; i < size; i++)
-    {
-        for (int j = 0; j < size; j++)
-        {
+void printPixel(int x, int y,int size, int rgb) {
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
             char * pos = getPos(x+i, y+j);
             putRGB(pos, rgb);
         }
     }
 }
 
-void newLine()
-{
-    for (int i=windows[window].firstPosition; i<windows[window].lastPosition; i++) 
-    {
-        for (int j=BORDER; j<FLOOR; j++)
-        {
+void newLine() {
+    for (int i=FIRSTPOS; i<LASTPOS; i++) {
+        for (int j=BORDER; j<FLOOR; j++) {
             char * aux=getPos(i,j+LETSIZE+BASESIZE);
             printPixel(i,j, 1, (aux[0]%2) + 2*(aux[1]%2) + 4*(aux[2]%2));    
         }
         for (int j=FLOOR; j<HEIGHT-BORDER-1; j++)
             printPixel(i,j,1,0);
     }
-    windows[window].curX =windows[window].firstPosition;
+    curX = FIRSTPOS;
 }
 
-void printBar()
-{
+void printBar() {
     for(int j=0; j<LETSIZE; j++)
-        printPixel(windows[window].curX, windows[window].curY+j, 1, 7);
+        printPixel(curX, FLOOR + j, 1, 7);
 }
 
-void unprintBar()
-{
+void unprintBar() {
     for(int j=0; j<LETSIZE; j++)
-         printPixel(windows[window].curX, windows[window].curY+j, 1, 0);
+        printPixel(curX, FLOOR + j, 1, 0);
 }
 
-void changeWindow()
-{
+void printBorder() {
 	unprintBar();
-    window=1-window;
-	for(int i=0; i<WIDTH/2-MIDBORDER/2; i+=BORDER)
-	{
-		printPixel(i+(1-window)*WINDIF,0,BORDER,7);
-		printPixel(i+window*WINDIF,0,BORDER,2);
-		printPixel(i+(1-window)*WINDIF,HEIGHT-BORDER,BORDER,7);
-		printPixel(i+window*WINDIF,HEIGHT-BORDER, BORDER,2);
+	for(int i = 0; i < WIDTH; i+=BORDER) {
+		printPixel(i, 0, BORDER, 7);
+		printPixel(i, HEIGHT - BORDER, BORDER, 7);
 	}
-	for(int j=BORDER; j<HEIGHT-2*BORDER+1; j+=BORDER)
-	{
-		printPixel((1-window)*WINDIF,j,BORDER,7);
-		printPixel(window*WINDIF,j,BORDER,2);
-		printPixel(WIDTH-BORDER-window*WINDIF,j,BORDER,7);
-		printPixel(WIDTH-BORDER-(1-window)*WINDIF,j,BORDER,2);
+	for(int j = BORDER; j < HEIGHT-2*BORDER+1; j+=BORDER) {
+		printPixel(0, j, BORDER, 7);
+		printPixel(WIDTH - BORDER, j, BORDER, 7);
 	}
 }
 
-void printBackSpace()
-{
-    if (windows[window].curX > windows[window].firstPosition)
-        windows[window].curX -= (LETSIZE+BASESIZE);
-    else
-    {
-        for (int i=windows[window].firstPosition; i<windows[window].lastPosition; i++)
-        {
-            for (int j=HEIGHT-BORDER-BASESIZE; j>=BORDER+LETSIZE+BASESIZE; j--)
-            {
+void printBackSpace() {
+    if (curX > FIRSTPOS)
+        curX -= (LETSIZE+BASESIZE);
+    else {
+        for (int i = FIRSTPOS; i < LASTPOS; i++) {
+            for (int j=HEIGHT-BORDER-BASESIZE; j>=BORDER+LETSIZE+BASESIZE; j--) {
                 char * aux=getPos(i,j-LETSIZE-BASESIZE);
                 printPixel(i,j, 1, (aux[0]%2) + 2*(aux[1]%2) + 4*(aux[2]%2));
             }
             for (int j=BORDER; j<BORDER+LETSIZE+BASESIZE; j++)
                 printPixel(i,j,1,0);
         }
-        windows[window].curX = windows[window].lastPosition-LETSIZE;
+        curX = LASTPOS - LETSIZE - 10; // el 10 es pq no escribe hasta el final de la linea
     }
-    printPixel(windows[window].curX , FLOOR, LETSIZE, 0);
+    printPixel(curX , FLOOR, LETSIZE, 0);
 }
 
-void printColorChar(char let, int rgb) 
-{
+void printColorChar(char let, int rgb) {
     unprintBar();
     if (let == 8)
         printBackSpace();
     else if (let == '\n')
         newLine();
-    else
-    {
+    else {
         int x,y;
 	    int set=0;
 	    char * bitmap=font[let];
-        for (y=0; y < 8; y++)
-        {
-            for (x=0; x < 8; x++) 
-		    {
+        for (y=0; y < 8; y++) {
+            for (x=0; x < 8; x++) {
                 set = bitmap[y] & 1 << x;
                 if (set)
-				    printPixel(windows[window].curX+x*BASESIZE,windows[window].curY+y*BASESIZE,BASESIZE, rgb);
+				    printPixel(curX+x*BASESIZE, FLOOR + y*BASESIZE, BASESIZE, rgb);
             }
         }
-        windows[window].curX += (LETSIZE+BASESIZE);
-	    if(windows[window].curX+LETSIZE >= windows[window].lastPosition+BASESIZE )
+        curX += (LETSIZE+BASESIZE);
+	    if(curX+LETSIZE >= LASTPOS+BASESIZE)
 		    newLine();
     }
 }
 
-void printChar(char let)
-{
+void printChar(char let) {
     printColorChar(let, 7);
 }
 
-void printCharRed(char let)
-{
+void printCharRed(char let) {
     printColorChar(let, 4);
 }
 
-void printString ( char* string)
-{
+void printString ( char* string) {
     int i = 0;
     while (string[i])
         printChar(string[i++]);
 }
 
-void printStringRed ( char* string)
-{
+void printStringRed ( char* string) {
     int i = 0;
     while (string[i])
         printCharRed(string[i++]);
 }
 
-void uintToBase(uint64_t value, uint32_t base)
-{
+void uintToBase(uint64_t value, uint32_t base) {
 	char *p = operationBuffer;
 	char *p1, *p2;
 	//Calculate characters for each digit
-	do
-	{
+	do {
 		uint32_t remainder = value % base;
 		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
 	}
@@ -365,8 +310,7 @@ void uintToBase(uint64_t value, uint32_t base)
 	//Reverse string in buffer.
 	p1 = operationBuffer;
 	p2 = p - 1;
-	while (p1 < p2)
-	{
+	while (p1 < p2) {
 		char tmp = *p1;
 		*p1 = *p2;
 		*p2 = tmp;
@@ -375,23 +319,19 @@ void uintToBase(uint64_t value, uint32_t base)
 	}
 }
 
-void printBase(uint64_t value, uint32_t base)
-{
+void printBase(uint64_t value, uint32_t base) {
     uintToBase(value, base);
     printString(operationBuffer);
 }
 
-void printDec(uint64_t value)
-{
+void printDec(uint64_t value) {
 	printBase(value, 10);
 }
 
-void printHex(uint64_t value)
-{
+void printHex(uint64_t value) {
 	printBase(value, 16);
 }
 
-void printBin(uint64_t value)
-{
+void printBin(uint64_t value) {
 	printBase(value, 2);
 }

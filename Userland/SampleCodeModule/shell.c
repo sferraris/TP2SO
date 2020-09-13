@@ -3,41 +3,35 @@
 char shellBuffer[100] = {0};
 char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest"};
 int shellPos = 0;
+char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: ",};
+
 void printMem();
 void processCommand();
 int matchArray();
-int shellInitiateProcess = 0;
-char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: ",};
 
-int matchArray()
-{
+int matchArray() {
     int j;
-    for ( j = 0; j < COMMANDS; j++)
-    {
+    for ( j = 0; j < COMMANDS; j++) {
         if(strcmpParams(shellBuffer,commandArray[j]))
             return j;
     }
     return -1;
 }
 
-void shellBackSpace()
-{
-    if (shellPos)
-    {
+void shellBackSpace() {
+    if (shellPos) {
         shellBuffer[shellPos] = 0;
         shellPos--;
         putChar(BACKSPACE);
     }
 }
 
-void shellCE()
-{
+void shellCE() {
     while(shellPos)
         shellBackSpace();
 }
 
-void help()
-{
+void help() {
     printRed("time: ");printf("Displays current time\n");
     printRed("cpudata: ");printf("Displays vendor, brand and model of your cpu\n");
     printRed("cputemp: ");printf("Displays the temperature of your cpu\n");
@@ -47,8 +41,7 @@ void help()
     printRed("opcodetest: ");printf("Triggers exception 6\n");
 }
 
-void time()
-{
+void time() {
     uint64_t hours = getHours();
     uint64_t mins = getMinutes();
     uint64_t secs = getSeconds();
@@ -66,8 +59,7 @@ void time()
     putChar('\n');
 }
 
-void cpuData()
-{
+void cpuData() {
     char buffer1[10];
     char buffer2[64]="Function not supported\n";
     printf("Vendor: ");
@@ -81,16 +73,13 @@ void cpuData()
     putChar('\n');
 }
 
-void cpuTemp()
-{
+void cpuTemp() {
     putDec(getTemp());
     printf("C\n");
 }
 
-void printMem()
-{
-    if ( shellBuffer[9] == '0' && shellBuffer[10] == 'x')
-    {
+void printMem() {
+    if ( shellBuffer[9] == '0' && shellBuffer[10] == 'x') {
         uint64_t num = stringHexToInt(shellBuffer + 11);
         uint64_t buff[4];
         getmem(num, buff);
@@ -100,23 +89,18 @@ void printMem()
     }
 }
 
-void zero_test()
-{
+void zero_test() {
     zero_exception_creator();
 }
 
-void invalidopcode_test()
-{
+void invalidopcode_test() {
     invalid_opcode_creator();
 }
 
-void inforeg()
-{
+void inforeg() {
     int* aux = receiveRegisters();
-    if ( aux[5] != 0)
-    {
-        for ( int i = 0; i < 15; i++)
-        {
+    if ( aux[5] != 0) {
+        for ( int i = 0; i < 15; i++) {
             printf(regNames[i]);putHex(aux[i]);putChar('\n');
         }
     }
@@ -124,12 +108,10 @@ void inforeg()
         printf("Registers not saved\n");
 }
 
-void processCommand()
-{
+void processCommand() {
     putChar('\n');
     int command = matchArray();
-    switch(command)
-    {
+    switch(command) {
         case 0:help();break;
         case 1:time();break;
         case 2:cpuData();break;
@@ -142,27 +124,16 @@ void processCommand()
     }
 }
 
-void initShell()
-{
-    if ( !shellInitiateProcess)
-        sendIp();
-    if ( !shellInitiateProcess)
-    {
-        shellInitiateProcess = 1;
-        return;
-    }
-    while (1)
-    { 
+void initShell() {
+    sendIp();
+    while (1) { 
+        putChar('>');
         char c = getChar();
-        while (c != '\n' )
-        {
-            switch(c)
-            {
+        while (c != '\n' ) {
+            switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case ESC: switchWindow();break;
-                default:if ( shellPos < 100)
-                        { 
+                default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;
                         }
