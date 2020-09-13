@@ -15,5 +15,7 @@ void invalid_opcode_creator();
 int* readRegisters();
 void sendIp();
 int getCpuTemp();
+void * getMalloc(uint64_t size);
+void getFree(void * p);
 
 #endif

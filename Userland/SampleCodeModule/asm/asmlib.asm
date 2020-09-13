@@ -10,6 +10,8 @@ GLOBAL invalid_opcode_creator
 GLOBAL readRegisters
 GLOBAL sendIp
 GLOBAL getCpuTemp
+GLOBAL getMalloc
+GLOBAL getFree
 
 section .text
     write:
@@ -108,6 +110,32 @@ section .text
 	    mov rsp, rbp
 	    pop rbp
 	    ret
+    
+    getMalloc:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 9
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+    
+    getFree:
+        push rbp
+        mov rbp, rsp
+        push rax
+        push rbx
+        mov rax, 10
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        pop rax
+        mov rsp, rbp
+        pop rbp
+        ret
 
     readmem:
         push rbp

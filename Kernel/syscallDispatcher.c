@@ -32,6 +32,8 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 6: return getRegisters();
         case 7: saveProgramData((uint64_t) p2, (uint64_t) p3);break;
         case 8: return getCpuTemp();
+        case 9: return malloc((uint64_t) p2);
+        case 10: free(p2);break;
         default: printString("Invalid syscall number\n");
     }
     return (void *) 0;

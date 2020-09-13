@@ -226,11 +226,11 @@ void unprintBar() {
 
 void printBorder() {
 	unprintBar();
-	for(int i = 0; i < WIDTH; i+=BORDER) {
+	for(int i = BORDER; i < WIDTH-BORDER; i+=BORDER) {
 		printPixel(i, 0, BORDER, 7);
 		printPixel(i, HEIGHT - BORDER, BORDER, 7);
 	}
-	for(int j = BORDER; j < HEIGHT-2*BORDER+1; j+=BORDER) {
+	for(int j = 0; j < HEIGHT; j+=BORDER) {
 		printPixel(0, j, BORDER, 7);
 		printPixel(WIDTH - BORDER, j, BORDER, 7);
 	}

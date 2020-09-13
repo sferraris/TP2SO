@@ -155,3 +155,11 @@ void putBin(uint64_t num) {
 uint64_t getTemp() {
     return getCpuTemp();
 }
+
+void * malloc(uint64_t size) {
+    return getMalloc(size);
+}
+
+void free(void * p) {
+    getFree(p);
+}

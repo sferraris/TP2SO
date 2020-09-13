@@ -25,5 +25,7 @@ int* receiveRegisters();
 void putFilledHex (uint64_t num);
 uint64_t getTemp();
 int stringHexToInt(char * s);
+void * malloc(uint64_t size);
+void getFree(void * p);
 
 #endif
