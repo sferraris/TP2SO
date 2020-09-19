@@ -39,6 +39,7 @@ void haltcpu(void);
 void saveRegisters(int *buff);
 void recoverExceptionRegisters(int *buff);
 void schedule_handler(void);
+void createProcess_asm(void *pos,void *rip);
 
 
 #endif /* INTERRUPS_H_ */
