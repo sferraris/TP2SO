@@ -6,6 +6,7 @@ GLOBAL picSlaveMask
 GLOBAL haltcpu
 GLOBAL saveRegisters
 GLOBAL recoverExceptionRegisters
+GLOBAL schedule_handler
 
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -60,6 +61,40 @@ SECTION .text
 	pop rax
 %endmacro
 
+%macro pushStateNoRax 0
+	push rbx
+	push rcx
+	push rdx
+	push rbp
+	push rdi
+	push rsi
+	push r8
+	push r9
+	push r10
+	push r11
+	push r12
+	push r13
+	push r14
+	push r15
+%endmacro
+
+%macro popStateNoRax 0
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop r11
+	pop r10
+	pop r9
+	pop r8
+	pop rsi
+	pop rdi
+	pop rbp
+	pop rdx
+	pop rcx
+	pop rbx
+%endmacro
+
 %macro irqHandlerMaster 1
 	pushState
 
@@ -87,7 +122,8 @@ SECTION .text
 %endmacro
 
 %macro syscallHandler 3
-
+	pushStateNoRax
+	
 	mov rdi, %1 ; pasaje nro de syscall
 	mov rsi, %2 ; parametros de la syscall
 	mov rdx, %3
@@ -99,9 +135,26 @@ SECTION .text
 	out 20h, al
 
 	pop rax
+
+	popStateNoRax
+
 	iretq
 %endmacro
 
+schedule_handler: ;<- RIP
+	pushState
+
+    mov rdi, rsp  ;gene + 1
+    call schedule
+    mov rsp, rax
+
+    ;Send EOI
+    mov al, 20h
+    out 20h, al
+
+    popState
+
+    iretq  ;se vuelve a pisar el RIP
 
 _hlt:
 	sti

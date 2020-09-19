@@ -4,7 +4,8 @@ static unsigned long ticks = 0;
 
 void timer_handler() {
 	ticks++;
-	if (ticks%18==0)
+	schedule_handler();
+	if (ticks%18==0)        //despues vemos
 		printBar();
 	else if (ticks%18==9)
 		unprintBar();

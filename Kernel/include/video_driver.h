@@ -14,9 +14,9 @@
 
 void printBorder();
 void printChar(char let); 
-void printString ( char* string);
+void printString (char* string);
 void printCharRed(char let);
-void printStringRed ( char* string);
+void printStringRed (char* string);
 
 void printBin(uint64_t value);
 void printHex(uint64_t value);

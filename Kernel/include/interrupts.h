@@ -10,6 +10,7 @@
 
 #include <idtLoader.h>
 #include <stdint.h>
+#include <scheduler.h>
 
 void _irq00Handler(void);
 void _irq01Handler(void);
@@ -37,6 +38,7 @@ void haltcpu(void);
 
 void saveRegisters(int *buff);
 void recoverExceptionRegisters(int *buff);
+void schedule_handler(void);
 
 
 #endif /* INTERRUPS_H_ */
