@@ -163,3 +163,23 @@ void * malloc(uint64_t size) {
 void free(void * p) {
     getFree(p);
 }
+
+void createProcess(void* rip){
+    createProcessAsm(rip);
+}
+
+void exit(){
+    exitAsm();
+}
+
+int getPid(){
+    return getPidAsm();
+}
+
+int killProcess(int pid){
+    killProcessAsm(pid);
+}
+
+int changeProcessState(int pid){
+    changeProcessStateAsm(pid);
+}

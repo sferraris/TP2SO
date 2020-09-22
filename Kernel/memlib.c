@@ -47,14 +47,6 @@ void setBitmap (int loc, int blocks) {
 void free(void * p) {
     int aux = (int) p;
     unsetBitmap((aux - HEAPSTART)/HEAPBLOCK);
-    printString((char *) p);
-    /*
-    for (int i=0; bitmap[i] != 0; i++) {
-        printDec(bitmap[i]);
-        printChar(' ');
-    }
-    */
-    printString("free\n");
 }
 
 void unsetBitmap (int loc) {

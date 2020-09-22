@@ -26,6 +26,10 @@ EXTERN syscallDispatcher
 EXTERN schedule
 
 
+EXTERN printRandom
+EXTERN printRandomString
+
+
 SECTION .text
 
 %macro pushState 0
@@ -146,17 +150,24 @@ SECTION .text
 
 schedule_handler: ;<- RIP
 	pushState
-
+	
     mov rdi, rsp  ;gene + 1
     call schedule
     mov rsp, rax
-
     ;Send EOI
+	push rax
+
     mov al, 20h
     out 20h, al
 
+	pop rax
+
     popState
 
+	pop rdi
+	call printRandom
+	push rdi
+	
     iretq  ;se vuelve a pisar el RIP
 
 createProcess_asm: 
@@ -165,12 +176,12 @@ cli
 mov rbp,rdi ;hago que rsp y rbp apunten a la direccion inmediatamente despues a la del stack del proceso (en push: primero se decrementa y despues se copia)
 mov rsp,rbp
 
-
 push 0x0 ;SS
 push rbp ;RSP 
 push 0x202 ;RFLAGS
 push 0x8 ;CS
 push rsi;RIP
+
 
 ;inicializo valores en forma ascendente para debugging
 
@@ -190,10 +201,10 @@ push 13 ;R13
 push 14 ;R14
 push 15 ;R15
 
-sti
-hlt
+popState
 
-ret
+iretq
+
 
 _hlt:
 	sti

@@ -1,10 +1,12 @@
 #include <time.h>
 
 static unsigned long ticks = 0;
-
+int flag = 0;
 void timer_handler() {
 	ticks++;
-	schedule_handler();
+	if ( flag == 1){
+		schedule_handler();
+	}
 	if (ticks%18==0)        //despues vemos
 		printBar();
 	else if (ticks%18==9)
@@ -17,4 +19,7 @@ int ticks_elapsed() {
 
 int seconds_elapsed() {
 	return ticks / 18;
+}
+void changeflag(){
+	flag = 1;
 }

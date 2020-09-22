@@ -125,13 +125,14 @@ void processCommand() {
 }
 
 void initShell() {
+    printf("Corre shell");
     sendIp();
     char * aux = malloc(1024*4*20 + 1);
     //char * aux3 = malloc(1024*4*69);
-    putHex((uint64_t)aux);
+    //putHex((uint64_t)aux);
     //free(aux);
     char * aux4 = malloc(1024*4*69);
-    putHex((uint64_t)aux4);
+   // putHex((uint64_t)aux4);
     free(aux);
     free(aux4);
     while (1) { 

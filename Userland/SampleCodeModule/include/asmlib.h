@@ -17,5 +17,10 @@ void sendIp();
 int getCpuTemp();
 void * getMalloc(uint64_t size);
 void getFree(void * p);
+void createProcessAsm(void * rip);
+void exitAsm();
+int getPidAsm();
+int killProcessAsm(int pid);
+int changeProcessStateAsm(int pid);
 
 #endif

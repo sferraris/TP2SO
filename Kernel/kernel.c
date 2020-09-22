@@ -41,9 +41,11 @@ void * initializeKernelBinary() {
 	return getStackBase();
 }
 
-int main() {	
-	load_idt();
+int main() {
 	printBorder();
+	load_idt();
 	((EntryPoint)sampleCodeModuleAddress)();
+	changeflag();
+	_hlt();
 	return 0;
 }

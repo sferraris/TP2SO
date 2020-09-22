@@ -21,6 +21,19 @@ char * data_handler(int fd, char * buffer) {
     }
     return (char *) 0;
 }
+void exit(){
+   changeState(KILLED);
+   liberateResources();
+}
+int killProcess(int pid){
+    int error = changeStatePid(pid, KILLED);
+    if (!error)
+        liberateResourcesPid(pid);
+    return error;
+}
+int changeProcessState(int pid, int state){
+    return changeStatePid(pid, state);
+}
 
 void* syscallDispatcher(int p1, void* p2, void* p3) {
     switch(p1) {
@@ -34,6 +47,11 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 8: return getCpuTemp();
         case 9: return malloc((uint64_t) p2);
         case 10: free(p2);break;
+        case 11: createProcess(p2);break;
+        case 12: exit();break;
+        case 13: return getPid();
+        case 14: return killProcess((uint64_t) p2);
+        case 15: return changeProcessState((uint64_t) p2, (int) p3);
         default: printString("Invalid syscall number\n");
     }
     return (void *) 0;

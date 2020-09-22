@@ -12,7 +12,11 @@ GLOBAL sendIp
 GLOBAL getCpuTemp
 GLOBAL getMalloc
 GLOBAL getFree
-
+GLOBAL createProcessAsm
+GLOBAL exitAsm
+GLOBAL getPidAsm
+GLOBAL killProcessAsm
+GLOBAL changeProcessStateAsm
 section .text
     write:
         push rbp
@@ -137,6 +141,65 @@ section .text
         pop rbp
         ret
 
+    createProcessAsm:
+        push rbp
+        mov rbp, rsp
+        push rax
+        push rbx
+        mov rax, 11
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        pop rax
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    exitAsm:
+        push rbp
+        mov rbp, rsp
+        push rax
+        mov rax, 12
+        int 80h
+        pop rax
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    getPidAsm:
+        push rbp
+        mov rbp, rsp
+        mov rax, 13
+        int 80h
+        mov rsp, rbp
+        pop rbp
+        ret
+    
+    killProcessAsm:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 14
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    changeProcessStateAsm:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 15
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+    
+    
     readmem:
         push rbp
         mov rbp, rsp
