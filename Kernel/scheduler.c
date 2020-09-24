@@ -13,23 +13,22 @@ int totalProcess = 0;
 int shellCreated = 0;
 
 void * schedule(void * rsp) {
-         printHex(rsp);
-        if ( shellCreated == 0 )
-            shellCreated = 1;
-        else{
-            printString("holis");
-            processList[currentPid].rsp = rsp;
-            currentPid++;
+    if ( shellCreated == 0 ){
+        shellCreated = 1;
+    }
+    else{
+        processList[currentPid].rsp = rsp;
+        currentPid++;
+    }
+    //aca va algoritmo de prioridades
+    while (processList[currentPid].state != READY ){//checkear que no se pase del rango
+        currentPid++;
+        if (currentPid >= PROCESSES){
+            currentPid = 0;
         }
-        //aca va algoritmo de prioridades
-        while (processList[currentPid].state != READY ){//checkear que no se pase del rango
-            currentPid++;
-            if (currentPid >= PROCESSES){
-                currentPid = 0;
-            }
-        }
-        printHex(processList[currentPid].rsp);
-        return processList[currentPid].rsp;
+    }
+    printString("retorna");
+    return processList[currentPid].rsp;
 }
 
 int searchPos() {
@@ -122,7 +121,7 @@ int getPid(){
 }
 
 void printRandom(void* pos){
-    printString("POSICION DE MEMORIA DEL INICIO DE SHELL DESDE KERNEL");
+    printString("Prueba: ");
     printHex(pos);
 }
 

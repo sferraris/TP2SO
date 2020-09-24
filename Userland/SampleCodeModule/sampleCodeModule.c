@@ -2,8 +2,7 @@
 /* sampleCodeModule.c */
 
 int main() {
-	printf("Inicio de shell");
-	putHex(&initShell);
-	createProcess(&initShell);
+	createProcess(initShell);
+	_hlt();
 	return 0;
 }

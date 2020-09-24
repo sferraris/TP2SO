@@ -149,25 +149,19 @@ SECTION .text
 %endmacro
 
 schedule_handler: ;<- RIP
+
 	pushState
-	
+
     mov rdi, rsp  ;gene + 1
     call schedule
-    mov rsp, rax
-    ;Send EOI
-	push rax
+    mov rsp, rax ;Send EOI
 
     mov al, 20h
     out 20h, al
 
-	pop rax
-
     popState
 
-	pop rdi
-	call printRandom
-	push rdi
-	
+
     iretq  ;se vuelve a pisar el RIP
 
 createProcess_asm: 

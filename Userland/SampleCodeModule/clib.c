@@ -183,3 +183,6 @@ int killProcess(int pid){
 int changeProcessState(int pid){
     changeProcessStateAsm(pid);
 }
+void _hlt(){
+    hltasm();
+}

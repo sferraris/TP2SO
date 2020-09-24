@@ -32,5 +32,6 @@ void exit();
 int getPid();
 int killProcess(int pid);
 int changeProcessState(int pid);
+void _hlt();
 
 #endif

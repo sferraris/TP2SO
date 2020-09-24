@@ -1,5 +1,5 @@
 #include <kernel.h>
-
+#include <video_driver.h>
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -45,7 +45,5 @@ int main() {
 	printBorder();
 	load_idt();
 	((EntryPoint)sampleCodeModuleAddress)();
-	changeflag();
-	_hlt();
 	return 0;
 }
