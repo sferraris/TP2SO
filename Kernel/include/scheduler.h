@@ -16,5 +16,4 @@ void liberateResourcesPid(int pid);
 int getPid();
 void printRandom(void* pos);
 void printRandomString();
-void startScheduler();
 #endif

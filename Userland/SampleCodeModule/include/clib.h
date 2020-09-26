@@ -3,6 +3,9 @@
 
 #include <asmlib.h>
 #include <stdint.h>
+#define KILLED 0
+#define BLOCKED 1
+#define READY 2
 
 void putChar(char c);
 void printf(char * buffer);
@@ -31,7 +34,7 @@ void createProcess(void* rip);
 void exit();
 int getPid();
 int killProcess(int pid);
-int changeProcessState(int pid);
-void _hlt();
+int changeProcessState(int pid,int state);
+
 
 #endif

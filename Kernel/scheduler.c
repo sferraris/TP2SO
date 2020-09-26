@@ -97,6 +97,8 @@ void createProcess(void * rip) {
     processList[pos].rsp = stack + STACKSIZE -i;
 
     totalProcess++;
+    startflag = 1;
+    _hlt();
 }
 
 
@@ -128,8 +130,4 @@ void printRandom(void* pos){
 
 void printRandomString(){
     printString("Llego");
-}
-
-void startScheduler(){
-    startflag = 1;
 }

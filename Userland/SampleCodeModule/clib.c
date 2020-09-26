@@ -177,12 +177,9 @@ int getPid(){
 }
 
 int killProcess(int pid){
-    killProcessAsm(pid);
+   return changeProcessStateAsm(pid,KILLED);
 }
 
-int changeProcessState(int pid){
-    changeProcessStateAsm(pid);
-}
-void _hlt(){
-    hltasm();
+int changeProcessState(int pid,int state){
+    return changeProcessStateAsm(pid,state);
 }

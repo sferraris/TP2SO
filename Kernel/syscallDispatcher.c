@@ -1,4 +1,5 @@
 #include <syscallDispatcher.h>
+#
 
 void print_handler(int fd, void* p) {
     switch(fd) {
@@ -25,12 +26,6 @@ void exit(){
    changeState(KILLED);
    liberateResources();
 }
-int killProcess(int pid){
-    int error = changeStatePid(pid, KILLED);
-    if (!error)
-        liberateResourcesPid(pid);
-    return error;
-}
 int changeProcessState(int pid, int state){
     return changeStatePid(pid, state);
 }
@@ -50,9 +45,7 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 11: createProcess(p2);break;
         case 12: exit();break;
         case 13: return getPid();
-        case 14: return killProcess((uint64_t) p2);
-        case 15: return changeProcessState((uint64_t) p2, (int) p3);
-        case 16: startScheduler();_hlt();break;
+        case 14: return changeProcessState((uint64_t) p2, (int) p3);
         default: printString("Invalid syscall number\n");
     }
     return (void *) 0;

@@ -124,6 +124,15 @@ void processCommand() {
     }
 }
 
+int pidPrueba=0;
+
+void prueba1() {
+    pidPrueba=getPid();
+    while(1) {
+        putDec(getPid());
+    }
+}
+
 void initShell() {
     //printf("Corre shell");
    // sendIp();
@@ -146,6 +155,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
+                case '5': exit();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;
