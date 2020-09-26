@@ -11,8 +11,10 @@ process processList[PROCESSES];
 int currentPid = 0;
 int totalProcess = 0;
 int shellCreated = 0;
-
+int startflag = 0;
 void * schedule(void * rsp) {
+    if ( startflag == 0)
+        return rsp;
     if ( shellCreated == 0 ){
         shellCreated = 1;
     }
@@ -27,7 +29,6 @@ void * schedule(void * rsp) {
             currentPid = 0;
         }
     }
-    printString("retorna");
     return processList[currentPid].rsp;
 }
 
@@ -60,35 +61,35 @@ void createProcess(void * rip) {
     i++;
     stack[finalpos -i] = rip;
     i++;
-    stack[finalpos -i] = 1;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 2;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 3;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 4;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 5;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 6;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 7;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 8;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 9;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 10;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 11;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 12;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 13;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 14;
+    stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 15;
+    stack[finalpos -i] = 0;
     
 
     processList[pos].state = READY;
@@ -127,4 +128,8 @@ void printRandom(void* pos){
 
 void printRandomString(){
     printString("Llego");
+}
+
+void startScheduler(){
+    startflag = 1;
 }

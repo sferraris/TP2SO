@@ -19,6 +19,7 @@ void _irq03Handler(void);
 void _irq04Handler(void);
 void _irq05Handler(void);
 void _irq80Handler(void);
+void timerTickHandler(void);
 
 void _exception0Handler(void);
 void _exception6Handler(void);
@@ -40,6 +41,7 @@ void saveRegisters(int *buff);
 void recoverExceptionRegisters(int *buff);
 void schedule_handler(void);
 void createProcess_asm(void *pos,void *rip);
+
 
 
 #endif /* INTERRUPS_H_ */

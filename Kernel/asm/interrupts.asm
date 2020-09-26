@@ -19,6 +19,7 @@ GLOBAL _irq80Handler
 
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
+GLOBAL timerTickHandler
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
@@ -148,21 +149,22 @@ SECTION .text
 	iretq
 %endmacro
 
-schedule_handler: ;<- RIP
-
+timerTickHandler: ;<- RIP
 	pushState
 
-    mov rdi, rsp  ;gene + 1
+	mov rdi, 0 ; pasaje de parametro
+	call irqDispatcher
+
+	mov rdi, rsp  ;gene + 1
     call schedule
     mov rsp, rax ;Send EOI
 
-    mov al, 20h
-    out 20h, al
+	; signal pic EOI (End of Interrupt)
+	mov al, 20h
+	out 20h, al
 
-    popState
-
-
-    iretq  ;se vuelve a pisar el RIP
+	popState
+	iretq
 
 createProcess_asm: 
 
@@ -230,10 +232,6 @@ picSlaveMask:
     pop     rbp
     retn
 
-
-;8254 Timer (Timer Tick)
-_irq00Handler:
-	irqHandlerMaster 0
 
 ;Keyboard
 _irq01Handler:

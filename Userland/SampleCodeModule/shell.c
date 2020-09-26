@@ -142,9 +142,7 @@ void initShell() {
     while (1) { 
         putChar('>');
         char c = getChar();
-        printf("pasa primer getchar");
         while (c != '\n' ) {
-            printf("entra al while");
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
@@ -154,11 +152,9 @@ void initShell() {
                         }
             }
             c = getChar();
-            printf("pasa segundo getchar");
         }
         shellBuffer[shellPos]=0;
         shellPos = 0;
         processCommand();
-        printf("procesa primer comando");
     }
 }
