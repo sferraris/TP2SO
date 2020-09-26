@@ -183,3 +183,11 @@ int killProcess(int pid){
 int changeProcessState(int pid,int state){
     return changeProcessStateAsm(pid,state);
 }
+
+int blockProcess(int pid) {
+    return changeProcessStateAsm(pid,BLOCKED);
+}
+
+void listProcesses() {
+    listProcessesAsm();
+}

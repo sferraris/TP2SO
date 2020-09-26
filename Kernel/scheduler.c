@@ -2,9 +2,12 @@
 #include <video_driver.h>//sacar
 #include <time.h>
 typedef struct {
+    //char * name;
+    //int priority;
     void * rsp;
     void * stackPos;
     int state;
+    //int foreground;
 }process;
 
 process processList[PROCESSES];
@@ -115,6 +118,15 @@ void changeState(int state){
     processList[currentPid].state = state;
 }
 
+void blockProcess(int pid) {
+    processList[pid].state = BLOCKED;
+}
+
+void unblockProcess(int pid) {
+    processList[pid].state = READY;
+}
+
+
 void liberateResources(){
     free(processList[currentPid].stackPos);
 }
@@ -130,4 +142,25 @@ void printRandom(void* pos){
 
 void printRandomString(){
     printString("Llego");
+}
+
+void listProcesses() {
+    int j=0;
+    for (int pid=0; pid < PROCESSES && j < totalProcess;pid++) {
+        if (processList[pid].state != KILLED) {
+            j++;
+            printString("Nombre = "); //printString(processList[pid].name); //Agregar nombre
+            printChar('\n');
+            printString("ID = "); printDec(pid);
+            printChar('\n');
+            printString("Priority = "); //printDec(processList[pid].priority);//Agregar priority
+            printChar('\n');
+            printString("RSP = "); printHex(processList[pid].rsp);
+            printChar('\n');
+            printString("RBP = "); printHex(processList[pid].stackPos + STACKSIZE);
+            printChar('\n');
+           // printString("Foreground = "); printDec(processList[pid].foreground);
+            //printChar('\n');
+        }
+    }
 }

@@ -17,6 +17,7 @@ GLOBAL exitAsm
 GLOBAL getPidAsm
 GLOBAL killProcessAsm
 GLOBAL changeProcessStateAsm
+GLOBAL listProcessesAsm
 section .text
     write:
         push rbp
@@ -189,7 +190,15 @@ section .text
         pop rbp
         ret
     
-    
+    listProcessesAsm:
+        push rbp
+	    mov rbp, rsp
+	    mov rax, 15
+	    int 80h
+	    mov rsp, rbp
+	    pop rbp
+	    ret
+
     readmem:
         push rbp
         mov rbp, rsp

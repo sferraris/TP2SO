@@ -35,6 +35,7 @@ void exit();
 int getPid();
 int killProcess(int pid);
 int changeProcessState(int pid,int state);
-
+int blockProcess(int pid);
+void listProcesses();
 
 #endif

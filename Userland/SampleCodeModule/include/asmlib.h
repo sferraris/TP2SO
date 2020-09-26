@@ -22,5 +22,6 @@ void exitAsm();
 int getPidAsm();
 int killProcessAsm(int pid);
 int changeProcessStateAsm(int pid,int state);
+void listProcessesAsm();
 
 #endif

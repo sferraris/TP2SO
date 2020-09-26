@@ -155,7 +155,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': exit();break;
+                case '5': listProcesses();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;
