@@ -6,7 +6,7 @@
 
 #define BACKSPACE 8
 #define TAB 9
-#define COMMANDS 8
+#define COMMANDS 11
 
 void initShell();
 

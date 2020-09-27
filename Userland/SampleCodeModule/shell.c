@@ -1,7 +1,7 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: ",};
 
@@ -39,6 +39,8 @@ void help() {
     printRed("inforeg: ");printf("Displays register values previously saved with alt+s\n");
     printRed("zerotest: ");printf("Triggers exception 0\n");
     printRed("opcodetest: ");printf("Triggers exception 6\n");
+    printRed("ps: ");printf("Lists all active processes\n");
+    printRed("nice: ");printf("Changes priviledge level from a given process. Format: nice pri pid\n");
 }
 
 void time() {
@@ -97,6 +99,44 @@ void invalidopcode_test() {
     invalid_opcode_creator();
 }
 
+void nice() { 
+    int pid;
+    int pri;
+    if (shellBuffer[4] == ' ' && shellBuffer[6] == ' ') {
+        pri = shellBuffer[5] - '0';
+        if (pri < 0 || pri > 9) {
+            printf("Numero incorrecto de privilegio\n");
+            return;
+        }  
+        pid = shellBuffer[7] - '0';
+        if (pid < 0 || pid > 9) {
+            printf("Numero incorrecto de ID\n");  
+            return;
+        }
+        if (isNumberHexa(shellBuffer[8])) {
+            pid = pid * 10 + (shellBuffer[8] - '0');
+        }
+        changePriority(pid,pri);
+    }
+    else
+        printf("Formato incorrecto");
+}
+
+void block() {
+    int pid;
+    if (shellBuffer[5] == ' ') {
+      pid = shellBuffer[6] - '0';
+        if (pid < 0 || pid > 9) {
+            printf("Numero incorrecto de ID\n");  
+            return;
+        }
+        if (isNumberHexa(shellBuffer[7])) {
+            pid = pid * 10 + (shellBuffer[7] - '0');
+        }
+        blockProcess(pid);
+    }
+}
+
 void inforeg() {
     int* aux = receiveRegisters();
     if ( aux[5] != 0) {
@@ -120,6 +160,9 @@ void processCommand() {
         case 5:inforeg();break;
         case 6:zero_test();break;
         case 7:invalidopcode_test();break;
+        case 8:listProcesses();break;
+        case 9:nice();break;
+        case 10:block();break;
         default:printf("Error: command doesnt match\n"); 
     }
 }
@@ -128,9 +171,8 @@ int pidPrueba=0;
 
 void prueba1() {
     pidPrueba=getPid();
-    printf("entro");
     while(1) {
-        //putDec(getPid());
+        putDec(getPid());
     }
 }
 

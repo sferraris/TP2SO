@@ -23,5 +23,6 @@ int getPidAsm();
 int killProcessAsm(int pid);
 int changeProcessStateAsm(int pid,int state);
 void listProcessesAsm();
+void niceAsm(int pid,int pri);
 
 #endif

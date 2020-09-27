@@ -24,5 +24,6 @@ int getPid();
 void printRandom(void* pos);
 void printRandomString();
 void listProcesses();
+void nice(int pid,int pri);
 
 #endif

@@ -18,6 +18,8 @@ GLOBAL getPidAsm
 GLOBAL killProcessAsm
 GLOBAL changeProcessStateAsm
 GLOBAL listProcessesAsm
+GLOBAL niceAsm
+
 section .text
     write:
         push rbp
@@ -184,6 +186,7 @@ section .text
         push rbx
         mov rax, 14
         mov rbx, rdi
+        mov rcx, rsi
         int 80h
         pop rbx
         mov rsp, rbp
@@ -198,6 +201,22 @@ section .text
 	    mov rsp, rbp
 	    pop rbp
 	    ret
+
+    niceAsm:
+	    push rbp
+	    mov rbp, rsp
+	    push rbx
+        push rcx
+	    mov rax, 16
+        mov rbx, rdi
+        mov rcx, rsi
+	    int 80h
+	    pop rcx
+        pop rbx 
+	    mov rsp, rbp
+	    pop rbp
+	    ret
+        
 
     readmem:
         push rbp

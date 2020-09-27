@@ -4,7 +4,7 @@
 #include <asmlib.h>
 #include <stdint.h>
 #define KILLED 0x0
-#define BLOCKED 0x1
+#define BLOCKED 1
 #define READY 0x2
 
 void putChar(char c);
@@ -35,7 +35,7 @@ void exit();
 int getPid();
 int killProcess(int pid);
 int changeProcessState(int pid,int state);
-int blockProcess(int pid);
+void blockProcess(int pid);
 void listProcesses();
-
+void changePriority(int pid,int pri);
 #endif

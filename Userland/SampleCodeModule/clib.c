@@ -184,10 +184,16 @@ int changeProcessState(int pid,int state){
     return changeProcessStateAsm(pid,state);
 }
 
-int blockProcess(int pid) {
-    return changeProcessStateAsm(pid,BLOCKED);
+void blockProcess(int pid) {
+    changeProcessStateAsm(pid,BLOCKED);
 }
 
 void listProcesses() {
     listProcessesAsm();
+}
+
+void changePriority(int pid,int pri) {
+    if (pri < 0 || pri > 9)
+        printf("Numero incorrecto de privilegio\n");
+    niceAsm(pid,pri);
 }

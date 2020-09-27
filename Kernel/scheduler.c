@@ -39,7 +39,11 @@ int chooseProcess() {
     if (timeCycle <= 0) {
         currentPos++;
         while (processLists[currentList][currentPri][currentPos] == 0 ||
-               allProcesses[processLists[currentList][currentPri][currentPos] - 1].state == KILLED) { //falta ++ en pos o timer
+               allProcesses[processLists[currentList][currentPri][currentPos] - 1].state != READY) { //falta ++ en pos o timer
+            if ( allProcesses[processLists[currentList][currentPri][currentPos] - 1].state == BLOCKED) {
+                insertProcess(processLists[currentList][currentPri][currentPos] - 1, currentPri);
+                processLists[currentList][currentPri][currentPos] = 0;
+            }
             if (currentPos == PROCESSES - 1) {
                 currentPos = 0; //chequear tumba
                 currentPri++;
@@ -158,7 +162,14 @@ int changeStatePid(int pid, int state) {
     if ( allProcesses[pid].state == KILLED){
         return -1;
     }
-    allProcesses[pid].state = state;
+    if (state == BLOCKED) {
+        if (allProcesses[pid].state == BLOCKED)
+            allProcesses[pid].state = READY;
+        else
+            allProcesses[pid].state = BLOCKED;
+    }
+    else
+        allProcesses[pid].state = state;
     if(state == KILLED)
         liberateResourcesPid(pid);
     return 0;
@@ -198,6 +209,25 @@ void unblockProcess(int pid) {
     allProcesses[pid].state = READY;
 }
 
+void removeProcess(int pid,int pri) {
+    int aux=0;
+    while ( processLists[currentList][pri][aux] != (pid + 1) ) {
+        aux++;
+    }
+    processLists[currentList][pri][aux] = 0;
+}
+
+void nice(int pid,int pri) {
+    if (allProcesses[pid].state != KILLED) {
+        if ( pri >= allProcesses[pid].priority && pri >= currentPri)
+            removeProcess(pid,allProcesses[pid].priority);
+        insertProcess(pid,pri);
+        allProcesses[pid].priority = pri;
+    }
+}
+
+
+
 void listProcesses() {
     int j=0;
     for (int pid=0; pid < PROCESSES && j < totalProcess;pid++) {
@@ -219,5 +249,6 @@ void listProcesses() {
             printString("Foreground = "); printDec(allProcesses[pid].foreground);
             printChar('\n');
         }
+        printChar('\n');
     }
 }
