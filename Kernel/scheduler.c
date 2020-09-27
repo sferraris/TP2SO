@@ -32,17 +32,16 @@ void * schedule(void * rsp) {
     else
         allProcesses[currentPid].rsp = rsp;
     currentPid = chooseProcess();
-    printDec(currentPid);
     return allProcesses[currentPid].rsp;
 }
 
 int chooseProcess() {
     if (timeCycle <= 0) {
-        //currentPos++;
-        while (processLists[currentList][currentPri][++currentPos] == 0 ||
+        currentPos++;
+        while (processLists[currentList][currentPri][currentPos] == 0 ||
                allProcesses[processLists[currentList][currentPri][currentPos] - 1].state == KILLED) { //falta ++ en pos o timer
             if (currentPos == PROCESSES - 1) {
-                currentPos = -1; //chequear tumba
+                currentPos = 0; //chequear tumba
                 currentPri++;
                 if (currentPri == PRIORITIES) { //const
                     swapList();
@@ -52,10 +51,10 @@ int chooseProcess() {
             } else
                 currentPos++;
         }
-        //processLists[1-currentList][currentPri][currentPos] = processLists[currentList][currentPri][currentPos];
         insertProcess(processLists[currentList][currentPri][currentPos]-1, currentPri);
         processLists[currentList][currentPri][currentPos] = 0;
         timeCycle = PRIORITIES - currentPri - 1; //constante
+
         return processLists[1-currentList][currentPri][currentPos] - 1;
     }
     timeCycle--;
@@ -150,26 +149,33 @@ void createProcess(void * rip) {
     _hlt();
 }
 
-int changeStatePid(int pid, int state) {
-    if ( allProcesses[pid].state == KILLED)
-        return -1;
-    allProcesses[pid].state = state;
-    return 0;
-}
-
 void liberateResourcesPid(int pid) {
     free(allProcesses[pid].stackPos);
     totalProcess--;
 }
 
-void changeState(int state) {
-    allProcesses[currentPid].state = state;
+int changeStatePid(int pid, int state) {
+    if ( allProcesses[pid].state == KILLED){
+        return -1;
+    }
+    allProcesses[pid].state = state;
+    if(state == KILLED)
+        liberateResourcesPid(pid);
+    return 0;
 }
+
 
 void liberateResources() {
     free(allProcesses[currentPid].stackPos);
     totalProcess--;
 }
+
+void changeState(int state) {
+    allProcesses[currentPid].state = state;
+    if(state == KILLED)
+        liberateResources();
+}
+
 
 int getPid() {
     return currentPid;
@@ -185,30 +191,33 @@ void printRandomString() {
 }
 
 void blockProcess(int pid) {
-    processList[pid].state = BLOCKED;
+    allProcesses[pid].state = BLOCKED;
 }
 
 void unblockProcess(int pid) {
-    processList[pid].state = READY;
+    allProcesses[pid].state = READY;
 }
 
 void listProcesses() {
     int j=0;
     for (int pid=0; pid < PROCESSES && j < totalProcess;pid++) {
-        if (processList[pid].state != KILLED) {
+        if (allProcesses[pid].state != KILLED) {
+            printString("STATE: ");
+            printDec(allProcesses[pid].state);
+            printChar('\n');
             j++;
-            printString("Nombre = "); //printString(processList[pid].name); //Agregar nombre
+            printString("Nombre = "); printString(allProcesses[pid].name); //Agregar nombre
             printChar('\n');
             printString("ID = "); printDec(pid);
             printChar('\n');
-            printString("Priority = "); //printDec(processList[pid].priority);//Agregar priority
+            printString("Priority = "); printDec(allProcesses[pid].priority);//Agregar priority
             printChar('\n');
-            printString("RSP = "); printHex(processList[pid].rsp);
+            printString("RSP = "); printHex(allProcesses[pid].rsp);
             printChar('\n');
-            printString("RBP = "); printHex(processList[pid].stackPos + STACKSIZE);
+            printString("RBP = "); printHex(allProcesses[pid].stackPos + STACKSIZE);
             printChar('\n');
-            // printString("Foreground = "); printDec(processList[pid].foreground);
-            //printChar('\n');
+            printString("Foreground = "); printDec(allProcesses[pid].foreground);
+            printChar('\n');
         }
     }
 }

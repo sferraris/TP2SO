@@ -3,9 +3,9 @@
 
 #include <asmlib.h>
 #include <stdint.h>
-#define KILLED 0
-#define BLOCKED 1
-#define READY 2
+#define KILLED 0x0
+#define BLOCKED 0x1
+#define READY 0x2
 
 void putChar(char c);
 void printf(char * buffer);

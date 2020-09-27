@@ -24,7 +24,6 @@ char * data_handler(int fd, char * buffer) {
 }
 void exit(){
    changeState(KILLED);
-   liberateResources();
 }
 int changeProcessState(int pid, int state){
     return changeStatePid(pid, state);

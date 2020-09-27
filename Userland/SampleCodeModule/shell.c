@@ -128,8 +128,9 @@ int pidPrueba=0;
 
 void prueba1() {
     pidPrueba=getPid();
+    printf("entro");
     while(1) {
-        putDec(getPid());
+        //putDec(getPid());
     }
 }
 
@@ -155,7 +156,9 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': listProcesses();break;
+                case '5': createProcess(prueba1);break;
+                case '6': killProcess(pidPrueba);break;
+                case '7': listProcesses();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;
