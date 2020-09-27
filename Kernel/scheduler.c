@@ -1,58 +1,99 @@
 #include <scheduler.h>
 #include <video_driver.h>//sacar
-#include <time.h>
+
 typedef struct {
-    //char * name;
-    //int priority;
+    char * name;
     void * rsp;
     void * stackPos;
     int state;
-    //int foreground;
+    int priority;
+    int foreground;
 }process;
 
-process processList[PROCESSES];
+typedef int processMat[PRIORITIES][PROCESSES]; //const
+processMat processLists[2];
+process allProcesses[PROCESSES];
+
 int currentPid = 0;
 int totalProcess = 0;
 int shellCreated = 0;
 int startflag = 0;
+
+int currentPri = 0;
+int currentPos = 0;
+int currentList = 0;
+int timeCycle = PRIORITIES - DEFAULTPRI - 1; //const
+
 void * schedule(void * rsp) {
     if ( startflag == 0)
         return rsp;
-    if ( shellCreated == 0 ){
+    if ( shellCreated == 0 )
         shellCreated = 1;
-    }
-    else{
-        processList[currentPid].rsp = rsp;
-        currentPid++;
-    }
-    //aca va algoritmo de prioridades
-    while (processList[currentPid].state != READY ){//checkear que no se pase del rango
-        currentPid++;
-        if (currentPid >= PROCESSES){
-            currentPid = 0;
+    else
+        allProcesses[currentPid].rsp = rsp;
+    currentPid = chooseProcess();
+    printDec(currentPid);
+    return allProcesses[currentPid].rsp;
+}
+
+int chooseProcess() {
+    if (timeCycle <= 0) {
+        //currentPos++;
+        while (processLists[currentList][currentPri][++currentPos] == 0 ||
+               allProcesses[processLists[currentList][currentPri][currentPos] - 1].state == KILLED) { //falta ++ en pos o timer
+            if (currentPos == PROCESSES - 1) {
+                currentPos = -1; //chequear tumba
+                currentPri++;
+                if (currentPri == PRIORITIES) { //const
+                    swapList();
+                    currentPri = 0;
+                    return chooseProcess();
+                }
+            } else
+                currentPos++;
         }
+        //processLists[1-currentList][currentPri][currentPos] = processLists[currentList][currentPri][currentPos];
+        insertProcess(processLists[currentList][currentPri][currentPos]-1, currentPri);
+        processLists[currentList][currentPri][currentPos] = 0;
+        timeCycle = PRIORITIES - currentPri - 1; //constante
+        return processLists[1-currentList][currentPri][currentPos] - 1;
     }
-    return processList[currentPid].rsp;
+    timeCycle--;
+    return currentPid;
+}
+
+void swapList() {
+    currentList = 1 - currentList;
+}
+
+void insertProcess(int pid, int pri) {
+    int listaux = currentList;
+    if (pri <= currentPri)
+        listaux = 1 - currentList;
+    int pos = 0;
+    while (processLists[listaux][pri][pos] != 0 && pos < PROCESSES)
+        pos++;
+    processLists[listaux][pri][pos] = pid + 1;
 }
 
 int searchPos() {
     int pos = 0;
-    while ( processList[pos].state != KILLED && pos < PROCESSES)
+    while (allProcesses[pos].state != KILLED && pos < PROCESSES)
         pos++;
     if (pos == PROCESSES)
-        return -1;
+        return - 1;
     return pos;
 }
 
 void createProcess(void * rip) {
+    if (totalProcess == PROCESSES)
+        return;
     uint64_t finalpos;
     uint64_t* stack = malloc(STACKSIZE);
     //if ( stack == -1); //checkear error
     finalpos = STACKSIZE;
     int pos = searchPos();
-    //if (pos == -1)
-        //chequear  error despues
-    //createProcess_asm(finalpos,rip);
+    //if (pos == -1); //chequear  error despues
     int i = 1;
     stack[finalpos -i] = 0x0;
     i++;
@@ -93,29 +134,54 @@ void createProcess(void * rip) {
     stack[finalpos -i] = 0;
     i++;
     stack[finalpos -i] = 0;
-    
 
-    processList[pos].state = READY;
-    processList[pos].stackPos = stack;
-    processList[pos].rsp = stack + STACKSIZE -i;
+    allProcesses[pos].state = READY;
+    allProcesses[pos].stackPos = stack;
+    allProcesses[pos].rsp = stack + STACKSIZE -i;
+    allProcesses[pos].priority = DEFAULTPRI; //parametro
+    allProcesses[pos].foreground = 1; //parametro
+    allProcesses[pos].name = "holis";
+
+    insertProcess(pos, DEFAULTPRI); //cambiar con parametro
 
     totalProcess++;
+
     startflag = 1;
     _hlt();
 }
 
-
-int changeStatePid(int pid, int state){
-    if ( processList[pid].state == KILLED)
+int changeStatePid(int pid, int state) {
+    if ( allProcesses[pid].state == KILLED)
         return -1;
-    processList[pid].state = state;
+    allProcesses[pid].state = state;
     return 0;
 }
-void liberateResourcesPid(int pid){
-    free(processList[pid].stackPos);
+
+void liberateResourcesPid(int pid) {
+    free(allProcesses[pid].stackPos);
+    totalProcess--;
 }
-void changeState(int state){
-    processList[currentPid].state = state;
+
+void changeState(int state) {
+    allProcesses[currentPid].state = state;
+}
+
+void liberateResources() {
+    free(allProcesses[currentPid].stackPos);
+    totalProcess--;
+}
+
+int getPid() {
+    return currentPid;
+}
+
+void printRandom(void* pos) {
+    printString("Prueba: ");
+    printHex(pos);
+}
+
+void printRandomString() {
+    printString("Llego");
 }
 
 void blockProcess(int pid) {
@@ -124,24 +190,6 @@ void blockProcess(int pid) {
 
 void unblockProcess(int pid) {
     processList[pid].state = READY;
-}
-
-
-void liberateResources(){
-    free(processList[currentPid].stackPos);
-}
-
-int getPid(){
-    return currentPid;
-}
-
-void printRandom(void* pos){
-    printString("Prueba: ");
-    printHex(pos);
-}
-
-void printRandomString(){
-    printString("Llego");
 }
 
 void listProcesses() {
@@ -159,7 +207,7 @@ void listProcesses() {
             printChar('\n');
             printString("RBP = "); printHex(processList[pid].stackPos + STACKSIZE);
             printChar('\n');
-           // printString("Foreground = "); printDec(processList[pid].foreground);
+            // printString("Foreground = "); printDec(processList[pid].foreground);
             //printChar('\n');
         }
     }
