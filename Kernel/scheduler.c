@@ -1,5 +1,4 @@
 #include <scheduler.h>
-#include <video_driver.h>//sacar
 
 typedef struct {
     char * name;
@@ -88,7 +87,7 @@ int searchPos() {
     return pos;
 }
 
-void createProcess(void * rip) {
+int createProcess(int argc, char * argv[]) { //rip, name, foreground
     if (totalProcess == PROCESSES)
         return;
     uint64_t finalpos;
@@ -106,7 +105,7 @@ void createProcess(void * rip) {
     i++;
     stack[finalpos -i] = 0x8;
     i++;
-    stack[finalpos -i] = rip;
+    stack[finalpos -i] = (void *) argv[0];
     i++;
     stack[finalpos -i] = 0;
     i++;
@@ -142,15 +141,17 @@ void createProcess(void * rip) {
     allProcesses[pos].stackPos = stack;
     allProcesses[pos].rsp = stack + STACKSIZE -i;
     allProcesses[pos].priority = DEFAULTPRI; //parametro
-    allProcesses[pos].foreground = 1; //parametro
-    allProcesses[pos].name = "holis";
+    allProcesses[pos].foreground = (int) argv[2]; //parametro
+    allProcesses[pos].name = argv[1];
 
     insertProcess(pos, DEFAULTPRI); //cambiar con parametro
 
     totalProcess++;
-
-    startflag = 1;
-    _hlt();
+    if (startflag == 0) {
+        startflag = 1;
+        _hlt();
+    }
+    return pos;
 }
 
 void liberateResourcesPid(int pid) {
@@ -226,29 +227,25 @@ void nice(int pid,int pri) {
     }
 }
 
-
-
-void listProcesses() {
+char * listProcesses() {
     int j=0;
+    char ret[PROCESSES*100] = {0}, auxID[10], auxPri[10], auxRSP[10], auxRBP[10];
     for (int pid=0; pid < PROCESSES && j < totalProcess;pid++) {
         if (allProcesses[pid].state != KILLED) {
-            printString("STATE: ");
-            printDec(allProcesses[pid].state);
-            printChar('\n');
+            strcpy(auxID, dectostr(pid));
+            strcpy(auxPri, dectostr(allProcesses[pid].priority));
+            strcpy(auxRSP, hextostr(allProcesses[pid].rsp));
+            strcpy(auxRBP, hextostr(allProcesses[pid].stackPos + STACKSIZE));
+            char *aux[] = {"Nombre: ", allProcesses[pid].name, "\t\t",
+                           "ID: ", auxID, "\t\t",
+                           "State: ", (allProcesses[pid].state == 1) ? "BLOCKED" : "READY", "\t\t",
+                           "Priority: ", auxPri, "\t\t",
+                           "Foreground: ", (allProcesses[pid].foreground == 1) ? "Foreground" : "Background", "\t\t",
+                           "RSP: ", "0x", auxRSP, "\t\t",
+                           "RBP: ", "0x", auxRBP, "\n"};
+            strcat(ret, aux, 23);
             j++;
-            printString("Nombre = "); printString(allProcesses[pid].name); //Agregar nombre
-            printChar('\n');
-            printString("ID = "); printDec(pid);
-            printChar('\n');
-            printString("Priority = "); printDec(allProcesses[pid].priority);//Agregar priority
-            printChar('\n');
-            printString("RSP = "); printHex(allProcesses[pid].rsp);
-            printChar('\n');
-            printString("RBP = "); printHex(allProcesses[pid].stackPos + STACKSIZE);
-            printChar('\n');
-            printString("Foreground = "); printDec(allProcesses[pid].foreground);
-            printChar('\n');
         }
-        printChar('\n');
     }
+    return ret;
 }

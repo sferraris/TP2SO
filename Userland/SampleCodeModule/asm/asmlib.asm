@@ -151,7 +151,7 @@ section .text
         push rcx
         mov rax, 11
         mov rbx, rdi
-        mov rcx,rsi
+        mov rcx, rsi
         int 80h
         pop rcx
         pop rbx
@@ -178,8 +178,7 @@ section .text
         mov rsp, rbp
         pop rbp
         ret
-    
-    
+
     changeProcessStateAsm:
         push rbp
         mov rbp, rsp

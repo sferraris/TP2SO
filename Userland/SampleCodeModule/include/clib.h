@@ -30,12 +30,13 @@ uint64_t getTemp();
 int stringHexToInt(char * s);
 void * malloc(uint64_t size);
 void getFree(void * p);
-void createProcess(void* rip);
+int createProcess(int argc, char * argv[]);
 void exit();
 int getPid();
 int killProcess(int pid);
 int changeProcessState(int pid,int state);
 void blockProcess(int pid);
-void listProcesses();
+char * listProcesses();
 void changePriority(int pid,int pri);
+
 #endif

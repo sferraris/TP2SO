@@ -1,9 +1,9 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop"};
 int shellPos = 0;
-char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: ",};
+char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
 void printMem();
 void processCommand();
@@ -41,6 +41,7 @@ void help() {
     printRed("opcodetest: ");printf("Triggers exception 6\n");
     printRed("ps: ");printf("Lists all active processes\n");
     printRed("nice: ");printf("Changes priviledge level from a given process. Format: nice pri pid\n");
+    printRed("loop: ");printf("Prints pid every 1.5 seconds\n");
 }
 
 void time() {
@@ -160,20 +161,27 @@ void processCommand() {
         case 5:inforeg();break;
         case 6:zero_test();break;
         case 7:invalidopcode_test();break;
-        case 8:listProcesses();break;
+        case 8:printf(listProcesses());break;
         case 9:nice();break;
         case 10:block();break;
+        case 11:createLoop();break;
         default:printf("Error: command doesnt match\n"); 
     }
 }
 
-int pidPrueba=0;
-
-void prueba1() {
-    pidPrueba=getPid();
+void loop() {
+    int pidPrueba = getPid();
+    int i;
     while(1) {
-        putDec(getPid());
+        for (i=0; i < 100000000; i++);
+        putDec(pidPrueba);
     }
+}
+
+void createLoop() {
+    int fg = (shellBuffer[4] == '&') ? 0 : 1;
+    char * argv[] = {loop, "Loop", fg};
+    createProcess(3, argv);
 }
 
 void initShell() {
@@ -198,9 +206,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': createProcess(prueba1);break;
-                case '6': killProcess(pidPrueba);break;
-                case '7': listProcesses();break;
+                case '5': loop();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;

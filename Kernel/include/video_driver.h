@@ -17,10 +17,13 @@ void printChar(char let);
 void printString (char* string);
 void printCharRed(char let);
 void printStringRed (char* string);
-
+void strcat(char * str1, char ** str2, int cant);
+void strcpy(char * str1, char * str2);
 void printBin(uint64_t value);
 void printHex(uint64_t value);
+char * hextostr(uint64_t value);
 void printDec(uint64_t value);
+char * dectostr(uint64_t value);
 void printBase(uint64_t value, uint32_t base);
 
 void printBar();

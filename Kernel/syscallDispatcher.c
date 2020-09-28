@@ -42,11 +42,11 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 8: return getCpuTemp();
         case 9: return malloc((uint64_t) p2);
         case 10: free(p2);break;
-        case 11: createProcess(p2);break;
+        case 11: return createProcess((int) p2, (char *) p3);break;
         case 12: exit();break;
         case 13: return getPid();
         case 14: return changeProcessState((uint64_t) p2, (int) p3);
-        case 15: listProcesses();break;
+        case 15: return listProcesses();break;
         case 16: nice((int) p2,(int) p3);break;
         default: printString("Invalid syscall number\n");
     }

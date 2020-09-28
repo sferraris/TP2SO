@@ -2,7 +2,8 @@
 /* sampleCodeModule.c */
 
 int main() {
-	createProcess(initShell);
+    char * argv[] = {initShell, "Shell", 1};
+    createProcess(3, argv);
 	//no imprime
 	return 0;
 }

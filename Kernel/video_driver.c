@@ -328,10 +328,39 @@ void printDec(uint64_t value) {
 	printBase(value, 10);
 }
 
+char * dectostr(uint64_t value) {
+    uintToBase(value, 10);
+    return operationBuffer;
+}
+
 void printHex(uint64_t value) {
 	printBase(value, 16);
 }
 
+char * hextostr(uint64_t value) {
+    uintToBase(value, 16);
+    return operationBuffer;
+}
+
 void printBin(uint64_t value) {
 	printBase(value, 2);
+}
+
+void strcat(char * str1, char ** str2, int cant) {
+    int i;
+    int aux = 0;
+    for (i=0; str1[i] != 0; i++);
+    while (aux < cant) {
+        for (int j=0; str2[aux][j] !=0; j++)
+            str1[i++] = str2[aux][j];
+        aux++;
+    }
+    str1[i] = 0;
+}
+
+void strcpy(char * str1, char * str2) {
+    int i;
+    for (i = 0; str2[i] != 0; i++)
+        str1[i] = str2[i];
+    str1[i] = 0;
 }

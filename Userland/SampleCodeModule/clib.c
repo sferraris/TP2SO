@@ -164,8 +164,8 @@ void free(void * p) {
     getFree(p);
 }
 
-void createProcess(void* rip){
-    createProcessAsm(rip);
+int createProcess(int argc, char * argv[]){
+    return createProcessAsm(argc, argv);
 }
 
 void exit(){
@@ -188,8 +188,8 @@ void blockProcess(int pid) {
     changeProcessStateAsm(pid,BLOCKED);
 }
 
-void listProcesses() {
-    listProcessesAsm();
+char * listProcesses() {
+    return listProcessesAsm();
 }
 
 void changePriority(int pid,int pri) {

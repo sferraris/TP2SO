@@ -3,6 +3,7 @@
 
 #include <memlib.h>
 #include <interrupts.h>
+#include <video_driver.h>
 
 #define STACKSIZE (1024 * 4)
 #define PROCESSES 100
@@ -13,7 +14,7 @@
 #define DEFAULTPRI 4
 
 void * schedule(void * rsp);
-void createProcess(void * rip);
+int createProcess(int argc, char * argv[]);
 void changeState(int state);
 int changeStatePid(int pid, int state);
 void blockProcess(int pid);
@@ -23,7 +24,7 @@ void liberateResourcesPid(int pid);
 int getPid();
 void printRandom(void* pos);
 void printRandomString();
-void listProcesses();
+char * listProcesses();
 void nice(int pid,int pri);
 
 #endif
