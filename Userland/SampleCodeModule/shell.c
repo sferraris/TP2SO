@@ -172,9 +172,10 @@ void processCommand() {
 void loop() {
     int pidPrueba = getPid();
     int i;
+    putDec(pidPrueba);
     while(1) {
         for (i=0; i < 100000000; i++);
-        putDec(pidPrueba);
+        //putDec(pidPrueba);
     }
 }
 
@@ -206,7 +207,6 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': loop();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;

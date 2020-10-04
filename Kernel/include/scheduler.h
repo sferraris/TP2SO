@@ -26,5 +26,7 @@ void printRandom(void* pos);
 void printRandomString();
 char * listProcesses();
 void nice(int pid,int pri);
+int isBack();
+void detectChar();
 
 #endif

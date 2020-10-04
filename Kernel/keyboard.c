@@ -35,6 +35,7 @@ void key_handler() {
         else
             saveChar(keySet[key][special]);
     }
+    detectChar();
 }
 
 int* getRegisters() {

@@ -23,18 +23,31 @@ int currentPos = 0;
 int currentList = 0;
 int timeCycle = PRIORITIES - DEFAULTPRI - 1; //const
 
+int foregroundFlag = 0;
+int currentForegroundPid = 0;
+
 void * schedule(void * rsp) {
     if ( startflag == 0)
         return rsp;
     if ( shellCreated == 0 )
         shellCreated = 1;
     else
-        allProcesses[currentPid].rsp = rsp;
-    currentPid = chooseProcess();
+        allProcesses[currentPid].rsp = rsp; 
+    if (foregroundFlag == 0)   
+        currentPid = chooseProcess();
+    else {
+        currentPid = currentForegroundPid;
+        foregroundFlag = 0;
+    }
     return allProcesses[currentPid].rsp;
 }
 
+void detectChar() {
+    foregroundFlag = 1;
+}
+
 int chooseProcess() {
+    
     if (timeCycle <= 0) {
         currentPos++;
         while (processLists[currentList][currentPri][currentPos] == 0 ||
@@ -248,4 +261,8 @@ char * listProcesses() {
         }
     }
     return ret;
+}
+
+int isBack() {
+    return !allProcesses[currentPid].foreground;
 }

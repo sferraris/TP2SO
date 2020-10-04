@@ -3,6 +3,7 @@
 
 #include <interrupts.h>
 #include <video_driver.h>
+#include <scheduler.h>
 
 void key_handler();
 int* getRegisters();

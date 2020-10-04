@@ -29,10 +29,16 @@ int changeProcessState(int pid, int state){
     return changeStatePid(pid, state);
 }
 
+char readKey() {
+    if (isBack())
+        return 0;
+    return read_key();
+}
+
 void* syscallDispatcher(int p1, void* p2, void* p3) {
     switch(p1) {
         case 1: print_handler((int) p2, p3);break;
-        case 2: return read_key();break;
+        case 2: return readKey();break;
         case 3: return read_time((int) p2);break;
         case 4: return data_handler((int) p2, (char *)p3);
         case 5: return cpuModel();
