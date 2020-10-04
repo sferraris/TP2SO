@@ -154,8 +154,8 @@ void processCommand() {
     int command = matchArray();
     switch(command) {
         case 0:help();break;
-        case 1:time();break;
-        case 2:cpuData();break;
+        case 1:);break;
+        case 2:cpuDatime(ta();break;
         case 3:cpuTemp();break;
         case 4:printMem();break;
         case 5:inforeg();break;

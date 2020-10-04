@@ -10,11 +10,10 @@
 #define EB 0
 #define FB 1
 #define EOB 2
+#define MAXLEVEL 12
 
 void * malloc (uint64_t size);
 void free (void * p);
-int mapLocation (int blocks);
-void setBitmap (int loc, int blocks);
-void unsetBitmap (int loc);
+void initMem();
 
 #endif

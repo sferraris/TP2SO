@@ -1,5 +1,5 @@
 #include <kernel.h>
-#include <video_driver.h>
+
 extern uint8_t text;
 extern uint8_t rodata;
 extern uint8_t data;
@@ -45,6 +45,7 @@ void * initializeKernelBinary() {
 int main() {
 	printBorder();
 	load_idt();
+	initMem();
 	((EntryPoint)sampleCodeModuleAddress)();
 	return 0;
 }

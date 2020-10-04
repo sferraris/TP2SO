@@ -1,5 +1,4 @@
 #include <syscallDispatcher.h>
-#
 
 void print_handler(int fd, void* p) {
     switch(fd) {
