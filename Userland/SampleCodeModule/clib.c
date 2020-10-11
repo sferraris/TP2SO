@@ -184,7 +184,7 @@ int changeProcessState(int pid,int state){
     return changeProcessStateAsm(pid,state);
 }
 
-void blockProcess(int pid) {
+int blockProcess(int pid) {
     changeProcessStateAsm(pid,BLOCKED);
 }
 

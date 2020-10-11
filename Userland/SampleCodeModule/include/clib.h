@@ -3,6 +3,7 @@
 
 #include <asmlib.h>
 #include <stdint.h>
+
 #define KILLED 0x0
 #define BLOCKED 1
 #define READY 0x2
@@ -35,7 +36,7 @@ void exit();
 int getPid();
 int killProcess(int pid);
 int changeProcessState(int pid,int state);
-void blockProcess(int pid);
+int blockProcess(int pid);
 char * listProcesses();
 void changePriority(int pid,int pri);
 

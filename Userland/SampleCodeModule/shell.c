@@ -172,10 +172,9 @@ void processCommand() {
 void loop() {
     int pidPrueba = getPid();
     int i;
-    putDec(pidPrueba);
     while(1) {
         for (i=0; i < 100000000; i++);
-        //putDec(pidPrueba);
+        putDec(pidPrueba);
     }
 }
 
@@ -186,20 +185,6 @@ void createLoop() {
 }
 
 void initShell() {
-    //printf("Corre shell");
-   // sendIp();
-    char * aux = malloc(1024*4*20 + 1);
-   // printf("pasa primer malloc");
-    //char * aux3 = malloc(1024*4*69);
-    //putHex((uint64_t)aux);
-    //free(aux);
-    char * aux4 = malloc(1024*4*69);
-   // printf("pasa segundo malloc");
-   // putHex((uint64_t)aux4);
-    free(aux);
-    //printf("pasa primer free");
-    free(aux4);
-    //printf("pasa segundo free");
     while (1) { 
         putChar('>');
         char c = getChar();
@@ -207,6 +192,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
+                case '5': proTest();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;

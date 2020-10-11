@@ -3,6 +3,8 @@
 
 #include <clib.h>
 #include <asmlib.h>
+#include <mmtest.h>
+#include <protest.h>
 
 #define BACKSPACE 8
 #define TAB 9
