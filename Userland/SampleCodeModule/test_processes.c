@@ -38,7 +38,6 @@ void test_processes(){
   uint8_t action;
 
   while (1){
-
     // Create MAX_PROCESSES processes
     for(rq = 0; rq < MAX_PROCESSES; rq++){
       p_rqs[rq].pid = my_create_process("endless_loop");  // TODO: Port this call as required
@@ -53,7 +52,6 @@ void test_processes(){
     }
     // Randomly kills, blocks or unblocks processes until every one has been killed
     while (alive > 0){
-
       for(rq = 0; rq < MAX_PROCESSES; rq++){
         action = GetUniform(2) % 2; 
 

@@ -13,7 +13,7 @@ typedef int processMat[PRIORITIES][PROCESSES]; //const
 processMat processLists[2];
 process allProcesses[PROCESSES];
 
-int currentPid = 0;
+int currentPid = 1;
 int totalProcess = 0;
 int shellCreated = 0;
 int startflag = 0;
@@ -24,7 +24,9 @@ int currentList = 0;
 int timeCycle = PRIORITIES - DEFAULTPRI - 1; //const
 
 int foregroundFlag = 0;
-int currentForegroundPid = 0;
+int foregroundProcesses[FOREGROUNDPROCESSES];
+int foregroundIndex = -1;
+
 
 void * schedule(void * rsp) {
     if ( startflag == 0)
@@ -32,11 +34,11 @@ void * schedule(void * rsp) {
     if ( shellCreated == 0 )
         shellCreated = 1;
     else
-        allProcesses[currentPid].rsp = rsp; 
-    if (foregroundFlag == 0)   
+        allProcesses[currentPid].rsp = rsp;
+    if (foregroundFlag == 0)
         currentPid = chooseProcess();
     else {
-        currentPid = currentForegroundPid;
+        currentPid = foregroundProcesses[foregroundIndex];
         foregroundFlag = 0;
     }
     return allProcesses[currentPid].rsp;
@@ -51,9 +53,9 @@ int chooseProcess() {
     if (timeCycle <= 0) {
         currentPos++;
         while (processLists[currentList][currentPri][currentPos] == 0 ||
-               allProcesses[processLists[currentList][currentPri][currentPos] - 1].state != READY) { //falta ++ en pos o timer
-            if ( allProcesses[processLists[currentList][currentPri][currentPos] - 1].state == BLOCKED) {
-                insertProcess(processLists[currentList][currentPri][currentPos] - 1, currentPri);
+               allProcesses[processLists[currentList][currentPri][currentPos]].state != READY) { //falta ++ en pos o timer
+            if ( allProcesses[processLists[currentList][currentPri][currentPos]].state == BLOCKED) {
+                insertProcess(processLists[currentList][currentPri][currentPos], currentPri);
                 processLists[currentList][currentPri][currentPos] = 0;
             }
             if (currentPos == PROCESSES - 1) {
@@ -62,16 +64,16 @@ int chooseProcess() {
                 if (currentPri == PRIORITIES) { //const
                     swapList();
                     currentPri = 0;
-                    return chooseProcess();
+                    currentPos = 0;
                 }
             } else
                 currentPos++;
         }
-        insertProcess(processLists[currentList][currentPri][currentPos]-1, currentPri);
+        insertProcess(processLists[currentList][currentPri][currentPos], currentPri);
         processLists[currentList][currentPri][currentPos] = 0;
         timeCycle = PRIORITIES - currentPri - 1; //constante
 
-        return processLists[1-currentList][currentPri][currentPos] - 1;
+        return processLists[1-currentList][currentPri][currentPos];
     }
     timeCycle--;
     return currentPid;
@@ -82,33 +84,43 @@ void swapList() {
 }
 
 void insertProcess(int pid, int pri) {
-    int listaux = currentList;
-    if (pri <= currentPri)
-        listaux = 1 - currentList;
-    int pos = 0;
-    while (processLists[listaux][pri][pos] != 0 && pos < PROCESSES)
-        pos++;
-    processLists[listaux][pri][pos] = pid + 1;
+    processLists[1 - currentList][pri][pid] = pid;
 }
 
 int searchPos() {
-    int pos = 0;
+    int pos = 1;
     while (allProcesses[pos].state != KILLED && pos < PROCESSES)
         pos++;
     if (pos == PROCESSES)
         return - 1;
     return pos;
 }
+int updateForegroundList(){
+    if (foregroundIndex == -1)
+        return -1;
+    int i, j;
+    for ( i = 0; i < FOREGROUNDPROCESSES; i++){
+        if ( foregroundProcesses[i] != -1 )
+            foregroundProcesses[j++] = foregroundProcesses[i];
+    }
+    return j - 1;
+}
 
 int createProcess(int argc, char * argv[]) { //rip, name, foreground
+
     if (totalProcess == PROCESSES)
         return;
     uint64_t finalpos;
     uint64_t* stack = malloc(STACKSIZE);
-    //if ( stack == -1); //checkear error
+    if ( stack == (void*) 0)
+        return -1;
     finalpos = STACKSIZE;
     int pos = searchPos();
-    //if (pos == -1); //chequear  error despues
+    if (pos == -1){
+        free(stack);
+        return -1;
+    }
+
     int i = 1;
     stack[finalpos -i] = 0x0;
     i++;
@@ -157,6 +169,16 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground
     allProcesses[pos].foreground = (int) argv[2]; //parametro
     allProcesses[pos].name = argv[1];
 
+    //setear procesos foreground a la lista de foregrounds
+    if ( allProcesses[pos].foreground == 1){
+        foregroundIndex = updateForegroundList();
+        foregroundIndex++;
+        if ( foregroundIndex != 0){
+            allProcesses[foregroundProcesses[foregroundIndex - 1]].state = BLOCKED;
+        }
+        foregroundProcesses[foregroundIndex] = pos;
+    }
+
     insertProcess(pos, DEFAULTPRI); //cambiar con parametro
 
     totalProcess++;
@@ -167,7 +189,25 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground
     return pos;
 }
 
+int foregroundPos(int pid){
+    for ( int i = 0; i < FOREGROUNDPROCESSES; i++){
+        if ( foregroundProcesses[i] == pid){
+            return i;
+        }
+    }
+    return -1;
+}
+
 void liberateResourcesPid(int pid) {
+    if ( allProcesses[pid].foreground == 1 ){
+        int pos = foregroundPos(pid);
+        if ( pos != -1)
+            foregroundProcesses[pos] = -1;
+        if ( foregroundProcesses[foregroundIndex] == pid ){
+            foregroundIndex--;
+            allProcesses[foregroundProcesses[foregroundIndex]].state = READY;
+        }
+    }
     free(allProcesses[pid].stackPos);
     totalProcess--;
 }
@@ -189,16 +229,10 @@ int changeStatePid(int pid, int state) {
     return 0;
 }
 
-
-void liberateResources() {
-    free(allProcesses[currentPid].stackPos);
-    totalProcess--;
-}
-
 void changeState(int state) {
     allProcesses[currentPid].state = state;
     if(state == KILLED)
-        liberateResources();
+        liberateResourcesPid(currentPid);
 }
 
 
@@ -224,17 +258,12 @@ void unblockProcess(int pid) {
 }
 
 void removeProcess(int pid,int pri) {
-    int aux=0;
-    while ( processLists[currentList][pri][aux] != (pid + 1) ) {
-        aux++;
-    }
-    processLists[currentList][pri][aux] = 0;
+    processLists[currentList][pri][pid] = 0;
 }
 
 void nice(int pid,int pri) {
     if (allProcesses[pid].state != KILLED) {
-        if ( pri >= allProcesses[pid].priority && pri >= currentPri)
-            removeProcess(pid,allProcesses[pid].priority);
+        removeProcess(pid,allProcesses[pid].priority);
         insertProcess(pid,pri);
         allProcesses[pid].priority = pri;
     }

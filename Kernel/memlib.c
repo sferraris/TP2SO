@@ -77,7 +77,6 @@ void free(void * p) {
 }
 
 void initMem() {
-    memset(HEAPSTART, 0, TOTALHEAP + 1024*1024);
     nodes = HEAPSTART + TOTALHEAP;
     createTree();
 }

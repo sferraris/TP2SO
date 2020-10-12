@@ -12,6 +12,7 @@
 #define READY 2
 #define PRIORITIES 10
 #define DEFAULTPRI 4
+#define FOREGROUNDPROCESSES 10
 
 void * schedule(void * rsp);
 int createProcess(int argc, char * argv[]);

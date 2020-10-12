@@ -5,6 +5,7 @@
 #include <asmlib.h>
 #include <mmtest.h>
 #include <protest.h>
+#include <test_prio.h>
 
 #define BACKSPACE 8
 #define TAB 9

@@ -1,7 +1,7 @@
 #include <mmtest.h>
 
 #define MAX_BLOCKS 128
-#define MAX_MEMORY (1024*1024*3) //Should be around 80% of memory managed by the MM
+#define MAX_MEMORY (1024*1024*1) //Should be around 80% of memory managed by the MM
 
 typedef struct MM_rq{
   void *address;
@@ -9,14 +9,14 @@ typedef struct MM_rq{
 }mm_rq;
 
 void * memset1(void * destination, int32_t c, uint64_t length) {
-    uint8_t chr = (uint8_t)c;
+    uint32_t chr = (uint32_t)c;
     char * dst = (char*)destination;
 
     while(length--) {
         dst[length] = chr;
-        if (length < 22500) {
-            putHex(&dst[length]);
-            putChar(' ');
+        if (length < 26500) {
+            //putHex(&dst[length]);
+           // putChar(' ');
         }
     }
 
@@ -35,7 +35,13 @@ void test_mm(){
     // Request as many blocks as we can
     while(rq < MAX_BLOCKS && total < MAX_MEMORY){
       mm_rqs[rq].size = GetUniform(MAX_MEMORY - total - 1) + 1;
-      mm_rqs[rq].address = malloc(mm_rqs[rq].size); // TODO: Port this call as required
+      void* aux = malloc(mm_rqs[rq].size);
+      if ( aux > 0x1000000 ){
+        printf("MALLOC DE MIERDA");
+        return;
+      }
+
+      mm_rqs[rq].address = aux; // TODO: Port this call as required
       printf("Size: ");
       putDec(mm_rqs[rq].size);
       putChar(' ');
