@@ -24,5 +24,8 @@ int killProcessAsm(int pid);
 int changeProcessStateAsm(int pid,int state);
 char * listProcessesAsm();
 void niceAsm(int pid,int pri);
+void * _xchg(void * sem,int valor);
+void * _inc(int * lock);
+void * _dec(int * lock);
 
 #endif

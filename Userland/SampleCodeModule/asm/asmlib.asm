@@ -19,6 +19,9 @@ GLOBAL killProcessAsm
 GLOBAL changeProcessStateAsm
 GLOBAL listProcessesAsm
 GLOBAL niceAsm
+GLOBAL _xchg
+GLOBAL _inc
+GLOBAL _dec
 
 section .text
     write:
@@ -248,3 +251,34 @@ section .text
 	    mov rsp, rbp
 	    pop rbp
 	    ret
+
+    _xchg:
+        push rbp
+        mov rbp, rsp
+        xchg [rdi], rsi
+        cmp rsi,0
+        jnz notzero
+        mov rax,1
+        jmp fin
+    notzero:
+        mov rax,0
+    fin:
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    _inc:
+		push rbp
+        mov rbp, rsp
+        inc [rdi]
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    _dec:
+		push rbp
+        mov rbp, rsp
+        dec [rdi]
+        mov rsp, rbp
+        pop rbp
+        ret
