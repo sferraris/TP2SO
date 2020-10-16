@@ -22,6 +22,8 @@ GLOBAL niceAsm
 GLOBAL _xchg
 GLOBAL _inc
 GLOBAL _dec
+GLOBAL yieldAsm
+GLOBAL _xadd
 
 section .text
     write:
@@ -173,6 +175,17 @@ section .text
         pop rbp
         ret
 
+    yieldAsm:
+        push rbp
+        mov rbp, rsp
+        push rax
+        mov rax, 17
+        int 80h
+        pop rax
+        mov rsp, rbp
+        pop rbp
+        ret
+
     getPidAsm:
         push rbp
         mov rbp, rsp
@@ -255,14 +268,12 @@ section .text
     _xchg:
         push rbp
         mov rbp, rsp
+        mov rax, 0
         xchg [rdi], rsi
-        cmp rsi,0
-        jnz notzero
-        mov rax,1
-        jmp fin
-    notzero:
-        mov rax,0
-    fin:
+        cmp rsi, 0
+        jne ret0
+        mov rax, 1
+    ret0:
         mov rsp, rbp
         pop rbp
         ret
@@ -270,7 +281,7 @@ section .text
     _inc:
 		push rbp
         mov rbp, rsp
-        inc [rdi]
+        inc byte [rdi]
         mov rsp, rbp
         pop rbp
         ret
@@ -278,7 +289,12 @@ section .text
     _dec:
 		push rbp
         mov rbp, rsp
-        dec [rdi]
+        dec byte [rdi]
         mov rsp, rbp
         pop rbp
+        ret
+
+    _xadd:
+        mov rax,rdi
+        lock xadd [rsi],eax
         ret

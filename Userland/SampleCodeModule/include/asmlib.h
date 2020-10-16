@@ -27,5 +27,6 @@ void niceAsm(int pid,int pri);
 void * _xchg(void * sem,int valor);
 void * _inc(int * lock);
 void * _dec(int * lock);
+int _xadd(int num,int *s);
 
 #endif

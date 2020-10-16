@@ -192,7 +192,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': testMM();break;
+                case '5': Tsync();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;

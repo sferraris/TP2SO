@@ -106,7 +106,7 @@ int updateForegroundList(){
     return j - 1;
 }
 
-int createProcess(int argc, char * argv[]) { //rip, name, foreground
+int createProcess(int argc, char * argv[]) { //rip, name, foreground, mas argumentos
 
     if (totalProcess == PROCESSES)
         return;
@@ -136,21 +136,21 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground
     i++;
     stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 0;
+    stack[finalpos -i] = ( (argc > 6)? argv[6] : 0); //rcx
+    i++;
+    stack[finalpos -i] = ( (argc > 5)? argv[5] : 0); //rdx
     i++;
     stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = 0;
+    stack[finalpos -i] = ( (argc > 3)? argv[3] : 0); //rsi
     i++;
-    stack[finalpos -i] = 0;
+    stack[finalpos -i] = ( (argc > 4)? argv[4] : 0); //rdi
     i++;
-    stack[finalpos -i] = 0;
+    stack[finalpos -i] = ( (argc > 7)? argv[7] : 0); //r8
     i++;
-    stack[finalpos -i] = 0;
+    stack[finalpos -i] = ( (argc > 8)? argv[8] : 0); //r9
     i++;
-    stack[finalpos -i] = 0;
-    i++;
-    stack[finalpos -i] = 0;
+    stack[finalpos -i] = 0; //10
     i++;
     stack[finalpos -i] = 0;
     i++;
@@ -224,15 +224,19 @@ int changeStatePid(int pid, int state) {
     }
     else
         allProcesses[pid].state = state;
-    if(state == KILLED)
+    if(state == KILLED){
         liberateResourcesPid(pid);
+        yield();
+    }
     return 0;
 }
 
 void changeState(int state) {
     allProcesses[currentPid].state = state;
-    if(state == KILLED)
+    if(state == KILLED){
         liberateResourcesPid(currentPid);
+        yield();
+    }
 }
 
 
@@ -294,4 +298,9 @@ char * listProcesses() {
 
 int isBack() {
     return !allProcesses[currentPid].foreground;
+}
+
+void yield(){
+    timeCycle = 0;
+   _timertick();
 }

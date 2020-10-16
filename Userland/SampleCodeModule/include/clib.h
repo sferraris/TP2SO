@@ -33,6 +33,7 @@ void * malloc(uint64_t size);
 void getFree(void * p);
 int createProcess(int argc, char * argv[]);
 void exit();
+void yield();
 int getPid();
 int killProcess(int pid);
 int changeProcessState(int pid,int state);

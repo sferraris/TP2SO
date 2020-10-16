@@ -183,6 +183,9 @@ void exit(){
     exitAsm();
 }
 
+void yield(){
+    yieldAsm();
+}
 int getPid(){
     return getPidAsm();
 }

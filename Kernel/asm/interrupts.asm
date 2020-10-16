@@ -20,6 +20,7 @@ GLOBAL _irq80Handler
 GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 GLOBAL timerTickHandler
+GLOBAL _timertick
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
@@ -232,6 +233,15 @@ picSlaveMask:
     pop     rbp
     retn
 
+_timertick:
+	push rbp
+	mov rbp, rsp
+
+	int 20h
+
+	mov rsp, rbp
+	pop rbp
+	ret
 
 ;Keyboard
 _irq01Handler:

@@ -6,6 +6,7 @@
 #include <mmtest.h>
 #include <protest.h>
 #include <test_prio.h>
+#include <test_sync.h>
 
 #define BACKSPACE 8
 #define TAB 9
