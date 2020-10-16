@@ -42,9 +42,13 @@ void inc(uint64_t sem, uint64_t value, uint64_t N){
   }
   
   for (i = 0; i < N; i++){
+    putDec(i);
     if (sem) my_sem_wait(SEM_ID);
     slowInc(&global, value);
+    //printf("\nGLOBAL: ");
+    //putDec(global);
     if (sem) my_sem_post(SEM_ID);
+    
   }
 
   if (sem) my_sem_close(SEM_ID);
@@ -63,9 +67,10 @@ void test_sync(){
   printf("CREATING PROCESSES...(WITH SEM)\n");
 
   for(i = 0; i < TOTAL_PAIR_PROCESSES; i++){
-    my_create_process__("inc", 1, 1, 1000);
-    my_create_process__("inc", 1, -1, 1000);
+    my_create_process__("inc", 1, 1, 10);
+    my_create_process__("inc", 1, -1, 10);
   }
+
 }
 
 void test_no_sync(){
@@ -76,8 +81,8 @@ void test_no_sync(){
   printf("CREATING PROCESSES...(WITHOUT SEM)\n");
 
   for(i = 0; i < TOTAL_PAIR_PROCESSES; i++){
-    my_create_process__("inc", 0, 1, 100);
-    my_create_process__("inc", 0, -1, 100);
+    my_create_process__("inc", 0, 1, 10);
+    my_create_process__("inc", 0, -1, 10);
   }
 }
 

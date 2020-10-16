@@ -22,7 +22,7 @@ char * data_handler(int fd, char * buffer) {
     return (char *) 0;
 }
 void exit(){
-   changeState(KILLED);
+   changeStatePid(getPid(), KILLED);
 }
 
 int changeProcessState(int pid, int state){

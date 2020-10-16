@@ -13,7 +13,7 @@ void printf(char * buffer);
 char getChar();
 void printRed(char * buffer);
 void getmem(int num, uint64_t*buffer);
-void putDec(uint64_t num);
+void putDec(int num);
 void putHex(uint64_t num);
 void putBin(uint64_t num);
 void putDouble(double num);

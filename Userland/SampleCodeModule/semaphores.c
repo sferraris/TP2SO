@@ -19,7 +19,7 @@ int searchAvailSem() {
     return -1;
 }
 
-int addSem(char * name,int * mem, int pid) {
+int createSem(char * name,int * mem, int pid) {
 	semaphore_t sem;
 	sem.name = name;
 	sem.status = mem; 
@@ -74,7 +74,7 @@ int sem_open(char * name) {
     int create;
 	if (sem == -1) { 
 	int * aux = malloc( sizeof(int) );
-    create = addSem(name,aux,getPid());
+    create = createSem(name,aux,getPid());
     if (create == -1)
         return -1;
 	}
@@ -127,9 +127,10 @@ int sem_post(char * name) {
 /////////////////////////////////////////////////////////////////////
 typedef struct {
     char * name;
-    int * status;
+    int status;
     int processesList[TOTALPROCESSES]; //procesos bloqueados
     int processes;
+	int cantProcesses;
 	int nextProcess;
     int * signals;
 }semaphore_t;
@@ -144,14 +145,13 @@ int nextSem(){
 	}
 	return -1;
 }
-int addSem(char * name,void * mem, int status) {
+int createSem(char * name, int status) {
 	int index = nextSem();
 	if ( index == -1)
 		return 0;
     semaphore_t sem;
     sem.name = name;
-    sem.status = mem;
-	*(sem.status) = status;
+	sem.status = status;
     semaphores[index] = sem;
 	cantSem++;
 	return 1;
@@ -165,27 +165,24 @@ int semPresent(char * name) {
     }
     return aux;
 }
-int findProcessIndex(semaphore_t * sem){
-	int contador = 0;
-	for (int i = sem->processes; i < TOTALPROCESSES && contador < TOTALPROCESSES; i++, contador++){
-		if ( i == TOTALPROCESSES - 1)
-			i = -1;
-		if ( sem->processesList[i] == 0 )
-			return i;
-	}
-	return -1;
+int findProcessIndex(int sem){
+	if ( semaphores[sem].cantProcesses == TOTALPROCESSES)
+		return -1;
+	int index = semaphores[sem].processes;
+	semaphores[sem].processes++;
+	if ( semaphores[sem].processes == TOTALPROCESSES)
+		semaphores[sem].processes = 0;
+	return index;
 }
 
-int addProcessSem(int pid,semaphore_t * sem) {
+int addProcessSem(int pid,int sem) {
 	int index = findProcessIndex(sem);
-	if ( index == -1){
+	if ( index == -1)
 		return -1;
-	}
-	else{
-		sem->processesList[index] = pid;
-		sem->processes++;
-	}
-	return 0;
+	
+	semaphores[sem].processesList[index] = pid;
+	semaphores[sem].cantProcesses++;
+	return 1;
 	
 }
 
@@ -193,12 +190,9 @@ int addProcessSem(int pid,semaphore_t * sem) {
 uint64_t sem_open(char * name, int status) {
     int sem = semPresent(name);
     if ( sem == -1) {
-    void * aux = malloc(sizeof(uint64_t));//reservar espacio para int y retornar puntero 
-    if (aux == (void *)0 )
-        return 0;
-    return addSem(name,aux, status);
+    return createSem(name, status);
     }
-    return 0;
+    return 1;
 }
 
 uint64_t sem_close(char * name){
@@ -214,18 +208,23 @@ uint64_t sem_close(char * name){
 }
 
 
-void sleep(semaphore_t * s) {
-    while (s->signals > 0 && s->processes > 0) {
-        wakeup(s);
-        (*(s->signals))--;
-    }
+void sleep(int sem) {
 	int pid = getPid();
-	if ( addProcessSem(pid,s) == 0)
+	int process = addProcessSem(pid, sem);
+	if ( process == 0){
     	blockProcess(pid);
+	}
 }
 
-int findNextProcess(semaphore_t * sem){
-	int contador = 0;
+int findNextProcess(int sem){
+	if ( semaphores[sem].cantProcesses == 0)				// processes -> indice para agregar el prox
+		return -1;								//cantProcesses -> cant = 0
+	int i = semaphores[sem].nextProcess;					//nextprocess -> proximo a elegir
+	semaphores[sem].nextProcess++;
+	if ( semaphores[sem].nextProcess == TOTALPROCESSES)    // t	0	0	0	0	0	n	m	p	q	
+		semaphores[sem].nextProcess = 0;					// ^						^processes && next
+	return i;
+	/*
 	for (int i = sem->nextProcess; i < TOTALPROCESSES && contador < TOTALPROCESSES; i++, contador++){
 		sem->nextProcess++;
 		if ( sem->nextProcess == TOTALPROCESSES - 1)
@@ -236,6 +235,7 @@ int findNextProcess(semaphore_t * sem){
 			return i;
 	}
 	return -1;
+	*/
 }
 
 
@@ -252,9 +252,11 @@ int getSem(char * name) {
 uint64_t sem_wait(char * name) {
 	int index = getSem(name);
 	if ( index != -1){
-		while (_xadd(-1, semaphores[index].status) <= 0) {
-			_xadd(1, semaphores[index].status);
+		while ( _xadd(-1, &semaphores[index].status) <= 0 ) {
+			_xadd(1, &semaphores[index].status);
 			sleep(&semaphores[index]); //ojo signal lost
+			printf("\nSe desbloqueo el proceso: ");
+			putDec(getPid());
 		}
 	}
 	return 1;
@@ -264,18 +266,18 @@ uint64_t sem_post(char * name) {
 	int index = getSem(name);
 	if ( index != -1){
 		_xadd(1,semaphores[index].status);
-		_xadd(1,semaphores[index].signals);
-		wakeup(&semaphores[index]);
+		if ( semaphores[index].cantProcesses > 0)
+			wakeup(index);
 	}
 	return 1;
 }
 
-void wakeup(semaphore_t * s) {
-	int index = findNextProcess(s);
+void wakeup(int sem) {
+	int index = findNextProcess(sem);
 	if ( index != -1){
-		int pid = s->processesList[index];
-		s->processesList[index] = 0;
-		s->processes--;
-    	blockProcess(pid);
+		int pid = semaphores[sem].processesList[index];
+		semaphores[sem].processesList[index] = 0;
+		semaphores[sem].cantProcesses--;
+    	blockProcess(pid); //Desbloquear el proceso
 	}
 }

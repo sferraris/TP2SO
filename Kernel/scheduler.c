@@ -226,17 +226,10 @@ int changeStatePid(int pid, int state) {
         allProcesses[pid].state = state;
     if(state == KILLED){
         liberateResourcesPid(pid);
-        yield();
     }
+    if (pid == currentPid)
+        yield();
     return 0;
-}
-
-void changeState(int state) {
-    allProcesses[currentPid].state = state;
-    if(state == KILLED){
-        liberateResourcesPid(currentPid);
-        yield();
-    }
 }
 
 

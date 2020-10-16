@@ -141,8 +141,13 @@ uint32_t uintToBase(uint64_t value, uint32_t base) {
     return digits;
 }
 
-void putDec(uint64_t num) {
-    uintToBase(num, 10);
+void putDec(int num) {
+    int aux = 1;
+    if ( num < 0){
+        printf("-");
+        aux = -1;
+    }
+    uintToBase(num * aux, 10);
     printf(operationBuffer);
 }
 
