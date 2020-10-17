@@ -24,6 +24,9 @@ GLOBAL _inc
 GLOBAL _dec
 GLOBAL yieldAsm
 GLOBAL _xadd
+GLOBAL _getLock
+GLOBAL _increaseSignal
+GLOBAL _decreaseSignal
 
 section .text
     write:
@@ -268,13 +271,9 @@ section .text
     _xchg:
         push rbp
         mov rbp, rsp
-        mov rax, 0
-        xchg [rdi], rsi
-        cmp rsi, 0
-        jne ret0
-        mov rax, 1
-    ret0:
-        mov rsp, rbp
+        mov rax, rsi
+        xchg [rdi], rax
+        mov rsp,rbp
         pop rbp
         ret
 
@@ -298,3 +297,44 @@ section .text
         mov rax,rdi
         lock xadd [rsi],eax
         ret
+
+    _getLock:
+         push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 18
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    _increaseSignal:
+        push rbp
+        mov rbp, rsp
+        push rax
+        push rbx
+        mov rax, 19
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        pop rax
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    _decreaseSignal:
+        push rbp
+        mov rbp, rsp
+        push rax
+        push rbx
+        mov rax, 20
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        pop rax
+        mov rsp, rbp
+        pop rbp
+        ret
+

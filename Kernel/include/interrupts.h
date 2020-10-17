@@ -25,6 +25,8 @@ void _timertick(void);
 void _exception0Handler(void);
 void _exception6Handler(void);
 
+uint64_t _xchg(uint64_t * pos,uint64_t num);
+
 void _cli(void);
 
 void _sti(void);
@@ -41,7 +43,6 @@ void haltcpu(void);
 void saveRegisters(int *buff);
 void recoverExceptionRegisters(int *buff);
 void schedule_handler(void);
-void createProcess_asm(void *pos,void *rip);
 
 
 

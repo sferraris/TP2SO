@@ -28,5 +28,8 @@ void * _xchg(void * sem,int valor);
 void * _inc(int * lock);
 void * _dec(int * lock);
 int _xadd(int num,int *s);
+int _getLock(int index);
+void _increaseSignal(int index);
+void _decreaseSignal(int index);
 
 #endif

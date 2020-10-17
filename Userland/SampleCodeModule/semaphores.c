@@ -137,6 +137,14 @@ typedef struct {
 
 semaphore_t semaphores[TOTALSEM];
 int cantSem = 0;
+int getSem(char * name) {
+	int aux = -1;
+	for (int i=0; i < TOTALSEM && aux == -1; i++) {
+		if ( strcmp(semaphores[i].name, name) )
+			return i;
+	}
+	return aux;
+}
 
 int nextSem(){
 	for ( int i = 0; i < TOTALSEM; i++){
@@ -209,10 +217,14 @@ uint64_t sem_close(char * name){
 
 
 void sleep(int sem) {
-	int pid = getPid();
-	int process = addProcessSem(pid, sem);
-	if ( process == 0){
-    	blockProcess(pid);
+	if (getLock(sem) > 0)
+		decreaseSignal(sem);
+	else {
+		int pid = getPid();
+		int process = addProcessSem(pid, sem);
+		if ( process == 1){
+			blockProcess(pid);
+		}
 	}
 }
 
@@ -224,39 +236,22 @@ int findNextProcess(int sem){
 	if ( semaphores[sem].nextProcess == TOTALPROCESSES)    // t	0	0	0	0	0	n	m	p	q	
 		semaphores[sem].nextProcess = 0;					// ^						^processes && next
 	return i;
-	/*
-	for (int i = sem->nextProcess; i < TOTALPROCESSES && contador < TOTALPROCESSES; i++, contador++){
-		sem->nextProcess++;
-		if ( sem->nextProcess == TOTALPROCESSES - 1)
-			sem->nextProcess = 0;
-		if ( i == TOTALPROCESSES - 1)
-			i = -1;
-		if ( sem->processesList[i] != 0 )
-			return i;
-	}
-	return -1;
-	*/
+	
 }
 
 
 
-int getSem(char * name) {
-	int aux = -1;
-	for (int i=0; i < TOTALSEM && aux == -1; i++) {
-		if ( strcmp(semaphores[i].name, name) )
-			return i;
-	}
-	return aux;
-}
+
 
 uint64_t sem_wait(char * name) {
+//printf("Hola");
 	int index = getSem(name);
 	if ( index != -1){
-		while ( _xadd(-1, &semaphores[index].status) <= 0 ) {
-			_xadd(1, &semaphores[index].status);
-			sleep(&semaphores[index]); //ojo signal lost
-			printf("\nSe desbloqueo el proceso: ");
-			putDec(getPid());
+		while ( _xadd(-1, &(semaphores[index].status)) <= 0 ) {
+			_xadd(1, &(semaphores[index].status));
+			sleep(index); //ojo signal lost
+			//printf("\nSe desbloqueo el proceso: ");
+			//putDec(getPid());
 		}
 	}
 	return 1;
@@ -265,9 +260,9 @@ uint64_t sem_wait(char * name) {
 uint64_t sem_post(char * name) {
 	int index = getSem(name);
 	if ( index != -1){
-		_xadd(1,semaphores[index].status);
-		if ( semaphores[index].cantProcesses > 0)
+		if ( semaphores[index].cantProcesses > 0) 
 			wakeup(index);
+		_xadd(1,&(semaphores[index].status));
 	}
 	return 1;
 }
@@ -277,7 +272,11 @@ void wakeup(int sem) {
 	if ( index != -1){
 		int pid = semaphores[sem].processesList[index];
 		semaphores[sem].processesList[index] = 0;
-		semaphores[sem].cantProcesses--;
+		(semaphores[sem].cantProcesses)--;
+
     	blockProcess(pid); //Desbloquear el proceso
+	}
+	else {
+		increaseSignal(sem);
 	}
 }

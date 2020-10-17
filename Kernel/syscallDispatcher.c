@@ -54,6 +54,9 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 15: return listProcesses();break;
         case 16: nice((int) p2,(int) p3);break;
         case 17: yield();break;
+        case 18: return getLock((int) p2);
+        case 19: increase((int) p2);break;
+        case 20: decrease((int) p2);break;
         default: printString("Invalid syscall number\n");
     }
     return (void *) 0;

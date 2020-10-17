@@ -46,6 +46,7 @@ int main() {
 	printBorder();
 	load_idt();
 	initMem();
+	
 	((EntryPoint)sampleCodeModuleAddress)();
 	return 0;
 }

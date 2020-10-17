@@ -9,4 +9,5 @@ int getCpuTemp();
 uint8_t readRTC(int fd);
 char getKey();
 
+
 #endif

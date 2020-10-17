@@ -227,8 +227,9 @@ int changeStatePid(int pid, int state) {
     if(state == KILLED){
         liberateResourcesPid(pid);
     }
-    if (pid == currentPid)
+    if (pid == currentPid) {
         yield();
+	}
     return 0;
 }
 

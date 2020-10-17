@@ -216,3 +216,15 @@ void changePriority(int pid,int pri) {
         printf("Numero incorrecto de privilegio\n");
     niceAsm(pid,pri);
 }
+
+int getLock(int index) {
+    return _getLock(index);
+}
+
+void increaseSignal(int index) {
+    _increaseSignal(index);
+}
+
+void decreaseSignal(int index) {
+    _decreaseSignal(index);
+}

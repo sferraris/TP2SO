@@ -7,7 +7,6 @@ GLOBAL haltcpu
 GLOBAL saveRegisters
 GLOBAL recoverExceptionRegisters
 GLOBAL schedule_handler
-GLOBAL createProcess_asm
 
 GLOBAL _irq00Handler
 GLOBAL _irq01Handler
@@ -21,6 +20,7 @@ GLOBAL _exception0Handler
 GLOBAL _exception6Handler
 GLOBAL timerTickHandler
 GLOBAL _timertick
+GLOBAL _xchg
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
@@ -167,41 +167,14 @@ timerTickHandler: ;<- RIP
 	popState
 	iretq
 
-createProcess_asm: 
-
-cli
-mov rbp,rdi ;hago que rsp y rbp apunten a la direccion inmediatamente despues a la del stack del proceso (en push: primero se decrementa y despues se copia)
-mov rsp,rbp
-
-push 0x0 ;SS
-push rbp ;RSP 
-push 0x202 ;RFLAGS
-push 0x8 ;CS
-push rsi;RIP
-
-
-;inicializo valores en forma ascendente para debugging
-
-push 1 ;RAX
-push 2 ;RBX
-push 3 ;RCX
-push 4 ;RDX
-push 5 ;RBP
-push 6 ;RDI ;argc
-push 7 ;RSI ;argv
-push 8 ;R8
-push 9 ;R9
-push 10 ;R10
-push 11 ;R11
-push 12 ;R12
-push 13 ;R13
-push 14 ;R14
-push 15 ;R15
-
-popState
-
-iretq
-
+_xchg:
+    push rbp
+    mov rbp, rsp
+    mov rax, rsi
+    xchg [rdi], rax
+    mov rsp,rbp
+    pop rbp
+    ret   
 
 _hlt:
 	sti

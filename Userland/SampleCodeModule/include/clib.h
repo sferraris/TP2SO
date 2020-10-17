@@ -40,5 +40,8 @@ int changeProcessState(int pid,int state);
 int blockProcess(int pid);
 char * listProcesses();
 void changePriority(int pid,int pri);
+int getLock(int index);
+void increaseSignal(int index);
+void decreaseSignal(int index);
 
 #endif

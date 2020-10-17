@@ -9,6 +9,7 @@
 #include <libasm.h>
 #include <memlib.h>
 #include <scheduler.h>
+#include <lock.h>
 
 void *syscallDispatcher(int p1, void* p2, void* p3);
 
