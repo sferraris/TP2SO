@@ -50,7 +50,7 @@ void inc(uint64_t sem, uint64_t value, uint64_t N){
     //printf("\nGLOBAL: ");
     //putDec(global);
     if (sem) my_sem_post(SEM_ID);
-   for (int j=0; j < 100000000;j++);
+   //for (int j=0; j < 100000000;j++);
   }
 
   if (sem) my_sem_close(SEM_ID);

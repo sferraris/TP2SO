@@ -1,7 +1,7 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
@@ -41,7 +41,8 @@ void help() {
     printRed("opcodetest: ");printf("Triggers exception 6\n");
     printRed("ps: ");printf("Lists all active processes\n");
     printRed("nice: ");printf("Changes priviledge level from a given process. Format: nice pri pid\n");
-    printRed("loop: ");printf("Prints pid every 1.5 seconds\n");
+    printRed("loop: ");printf("Prints pid after a certain amount of seconds\n");
+    printRed("sem: ");printf("Prints the name, status and ids of the blocked processes for each active semaphore\n");
 }
 
 void time() {
@@ -165,6 +166,7 @@ void processCommand() {
         case 9:nice();break;
         case 10:block();break;
         case 11:createLoop();break;
+        case 12:listSemaphores();break;
         default:printf("Error: command doesnt match\n"); 
     }
 }
@@ -182,6 +184,10 @@ void createLoop() {
     int fg = (shellBuffer[4] == '&') ? 0 : 1;
     char * argv[] = {loop, "Loop", fg};
     createProcess(3, argv);
+}
+
+void listSemaphores() {
+    printSemaphores();
 }
 
 void initShell() {

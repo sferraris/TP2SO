@@ -1,130 +1,6 @@
 #include <semaphores.h>
-/*
-typedef struct {
-	char * name;
-	int * status;
-	int * processesList; //procesos bloqueados
-	int processes;
-}semaphore_t;
-
-semaphore_t semaphores[TOTALSEM];
-int cantSem = 0;
 
 
-int searchAvailSem() {
-    for (int i=0; i < TOTALSEM; i++) {
-       if ( semaphores[i].name == 0) 
-        return i;
-    }
-    return -1;
-}
-
-int createSem(char * name,int * mem, int pid) {
-	semaphore_t sem;
-	sem.name = name;
-	sem.status = mem; 
-	sem.processesList[0] = pid;
-	sem.processes = 1;
-    int pos = searchAvailSem();
-    if (pos == -1)
-        return pos;
-    semaphores[pos] = sem;
-    return 0;
-}
-
-int semPresent(char * name) {
-	int aux = -1;
-	for (int i=0; i < TOTALSEM && aux == -1; i++) {
-		if (strcmp(semaphores[i].name, name))
-			aux = i;
-	}
-	return aux;
-}
-
-void addProcessSem(int pid,semaphore_t * sem) {
-	sem->processesList[(sem->processes)++] = pid;
-}
-
-
-
-int semEmpty(int sem) {
-    if ( semaphores[sem].processes == 0)
-        return 1;
-    return 0;
-}
-
-int getSem(char * name) {
-	int aux = -1;
-	for (int i=0; i < TOTALSEM && aux == -1; i++) {
-		if ( strcmp(semaphores[i].name, name) )
-			return i;
-	}
-	return aux;
-}
-
-void desbloquearProcesoSem(semaphore_t * sem) {
-    if ( sem->processes > 0) {
-        blockProcess(sem->processesList[sem->processes-1]);
-        (sem->processes)--;
-    }
-}
-
-int sem_open(char * name) {
-	int sem = semPresent(name);
-    int create;
-	if (sem == -1) { 
-	int * aux = malloc( sizeof(int) );
-    create = createSem(name,aux,getPid());
-    if (create == -1)
-        return -1;
-	}
-	else {
-		addProcessSem(getPid(),&semaphores[sem]);
-	}
-	return 0;
-}
-
-int sem_close(char * name) {
-	int index = getSem(name);
-	if( index == -1){
-		printf("Semaphore doesn't exist\n");
-		return -1;
-	}
-	semaphores[index].name = 0;
-	return 0;
-}
-
-int sem_wait(char * name) {
-	int index = getSem(name);
-	if( index == -1){
-		printf("Semaphore doesn't exist\n");
-		return -1;
-	}
-	semaphore_t sem = semaphores[index];
-	if (_xchg(sem.status,1)) { 
-	_dec(sem.status);
-	}
-	else {
-	int pid = getPid();
-	blockProcess(pid); //(registrando el motivo) y tal vez conviene hacer todo en una funcion nueva para evitar doble syscall (SYSCALL)
-	}
-	return 0;
-}
-
-int sem_post(char * name) {
-	int index = getSem(name);
-	if( index == -1){
-		printf("Semaphore doesn't exist\n");
-		return -1;
-	}
-    semaphore_t sem = semaphores[index];
-    if ( !semEmpty(index) )
-        desbloquearProcesoSem(&sem);
-    _inc(sem.status);
-	return 0;
-}
-*/
-/////////////////////////////////////////////////////////////////////
 typedef struct {
     char * name;
     int status;
@@ -160,6 +36,8 @@ int createSem(char * name, int status) {
     semaphore_t sem;
     sem.name = name;
 	sem.status = status;
+	for (int i=0; i<TOTALPROCESSES;i++)
+		sem.processesList[i] = 0;
     semaphores[index] = sem;
 	cantSem++;
 	return 1;
@@ -278,5 +156,25 @@ void wakeup(int sem) {
 	}
 	else {
 		increaseSignal(sem);
+	}
+}
+
+void printSemaphores() {
+	for (int i = 0; i < TOTALSEM; i++) {
+		if ( semaphores[i].name != 0) {
+		printf("Sem: ");
+		printf(semaphores[i].name);
+		printf("\t\t");
+		printf("Status: ");
+		putDec(semaphores[i].status);
+		printf("\t\t");	
+		printf("Blocked Processes: ");
+		for (int j = 0; j < TOTALPROCESSES; j++) {
+			if ( semaphores[i].processesList[j] != 0) {
+				putDec(semaphores[i].processesList[j]);
+				printf(" ");
+		}
+		}
+		}
 	}
 }
