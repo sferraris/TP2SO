@@ -18,6 +18,7 @@ void putBin(uint64_t num);
 void putDouble(double num);
 int strcmp(char * str1, char * str2);
 int strcmpParams(char * str1, char * str2);
+int isVowel(char c);
 int getHours();
 int getMinutes();
 int getSeconds();

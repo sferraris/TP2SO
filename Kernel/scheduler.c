@@ -97,17 +97,23 @@ int searchPos() {
 }
 int updateForegroundList(){
     if (foregroundIndex == -1)
-        return -1;
+        return 0;
     int i, j;
     for ( i = 0; i < FOREGROUNDPROCESSES; i++){
-        if ( foregroundProcesses[i] != -1 )
+        if ( foregroundProcesses[i] != 0 )
             foregroundProcesses[j++] = foregroundProcesses[i];
+    }
+    i = j;
+    while ( i < FOREGROUNDPROCESSES){
+        foregroundProcesses[i++] = 0;
     }
     return j - 1;
 }
 
 int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, write, mas argumentos
     if (totalProcess == PROCESSES)
+        return;
+    if ( argv[2] == 1 && foregroundIndex + 1 == FOREGROUNDPROCESSES)
         return;
     uint64_t finalpos;
     uint64_t* stack = malloc(STACKSIZE);
@@ -169,13 +175,14 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, writ
     allProcesses[pos].name = argv[1];
     allProcesses[pos].fd[0] = argv[3];
     allProcesses[pos].fd[1] = argv[4];
+    
 
     //setear procesos foreground a la lista de foregrounds
     if ( allProcesses[pos].foreground == 1){
         foregroundIndex = updateForegroundList();
-        foregroundIndex++;
         if ( foregroundIndex != 0){
-            allProcesses[foregroundProcesses[foregroundIndex - 1]].state = BLOCKED;
+            allProcesses[foregroundProcesses[foregroundIndex]].state = BLOCKED;
+            foregroundIndex++;
         }
         foregroundProcesses[foregroundIndex] = pos;
     }
@@ -202,12 +209,9 @@ int foregroundPos(int pid){
 void liberateResourcesPid(int pid) {
     if ( allProcesses[pid].foreground == 1 ){
         int pos = foregroundPos(pid);
-        if ( pos != -1)
-            foregroundProcesses[pos] = -1;
-        if ( foregroundProcesses[foregroundIndex] == pid ){
-            foregroundIndex--;
-            allProcesses[foregroundProcesses[foregroundIndex]].state = READY;
-        }
+        foregroundProcesses[pos] = 0;
+        foregroundIndex = updateForegroundList();
+        allProcesses[foregroundProcesses[foregroundIndex]].state = READY;
     }
     free(allProcesses[pid].stackPos);
     totalProcess--;

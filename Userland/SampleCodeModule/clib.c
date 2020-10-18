@@ -72,6 +72,10 @@ int strcmp(char * str1, char * str2) {
     return str1[i] == 0  && str2[i] == 0;
 }
 
+int isVowel(char c){
+    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U');
+}
+
 int getHours() {
    return getTime(4);
 }
@@ -152,6 +156,7 @@ uint32_t uintToBase(uint64_t value, uint32_t base) {
 	}
     return digits;
 }
+
 
 void putDec(int num) {
     int aux = 1;

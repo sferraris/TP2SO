@@ -1,7 +1,7 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem", "pipe"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem", "pipe", "cat", "wc", "filter"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
@@ -44,6 +44,9 @@ void help() {
     printf("loop: Prints pid after a certain amount of seconds\n");
     printf("sem: Prints the name, status and ids of the blocked processes for each active semaphore\n");
     printf("pipe: Prints the id, status and ids of the blocked processes for each active pipe\n");
+    printf("cat: Prints stdin as received\n");
+    printf("wc: Counts the lines from the input\n");
+    printf("filter: Filters the vowels from the input\n");
 }
 
 void time() {
@@ -151,6 +154,116 @@ void inforeg() {
         printf("Registers not saved\n");
 }
 
+void catFunction(){
+    char catBuff[250];
+    int catIndex;
+    while (1) { 
+        char c;
+        getChar(&c);
+        while (c != '\n' ) {
+            if ( catIndex < 250) { 
+                putChar(c);
+                catBuff[catIndex++] = c;
+            }
+            getChar(&c);
+        }
+        if ( c == '\n')
+            putChar(c);
+        catBuff[catIndex] = 0;
+
+        catIndex = 0;
+        if ( strcmp(catBuff, "exit") )
+            exit();
+        else{
+            printf(catBuff);
+            putChar('\n');
+        }
+    }
+
+}
+void cat(int input, int output){
+    char * argv[] = {catFunction, "cat", 1, input, output};
+    createProcess(5, argv);
+}
+
+void wcFunction(){
+    char wcBuff[250];
+    int wcIndex;
+    int lineCount = 0;
+    char c;
+    getChar(&c);
+    while (c != '$' ) {
+        if ( wcIndex < 250) { 
+            if ( c == '\n' ){
+                lineCount++;
+                wcIndex = 0;
+            }
+            else
+                wcBuff[wcIndex++] = c;
+                putChar(c);
+            }
+        getChar(&c);
+    }
+    if ( wcIndex > 0){
+        putChar('\n');
+        lineCount++;
+    }
+    printf("Line count: ");
+    putDec(lineCount);
+    putChar('\n');
+    exit();
+}
+
+void wc(int input, int output){
+    char * argv[] = {wcFunction, "wc", 1, input, output};
+    createProcess(5, argv);
+}
+
+char * filterVowels(char * buff){
+    char * aux = malloc(250 * sizeof(char));
+    int i = 0, j = 0;
+    while ( buff[i] != 0){
+        if ( !isVowel(buff[i]) ){
+            aux[j++] = buff[i];
+        }
+        i++;
+    }
+    aux[j] = 0;
+    return aux;
+}
+
+void filterFunction(){
+    char filterBuff[250];
+    int filterIndex;
+    while (1) { 
+        char c;
+        getChar(&c);
+        while (c != '\n' ) {
+            if ( filterIndex < 250) { 
+                putChar(c);
+                filterBuff[filterIndex++] = c;
+            }
+            getChar(&c);
+        }
+        if ( c == '\n')
+            putChar(c);
+        filterBuff[filterIndex] = 0;
+
+        filterIndex = 0;
+        if ( strcmp(filterBuff, "exit") )
+            exit();
+        char * filtered = filterVowels(filterBuff);
+        printf(filtered);
+        free(filtered);
+        putChar('\n');
+    }
+}
+
+void filter(int input, int output){
+    char * argv[] = {filterFunction, "filter", 1, input, output};
+    createProcess(5, argv);
+}
+
 void processCommand() {
     putChar('\n');
     int command = matchArray();
@@ -169,6 +282,9 @@ void processCommand() {
         case 11:createLoop();break;
         case 12:listSemaphores();break;
         case 13:printf(listPipes());break;
+        case 14:cat(0, 1);yield();break;
+        case 15:wc(0, 1);yield();break;
+        case 16:filter(0, 1);yield();break;
         default:printf("Error: command doesnt match\n"); 
     }
 }
