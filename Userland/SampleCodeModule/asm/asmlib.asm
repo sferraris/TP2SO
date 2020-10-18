@@ -1,5 +1,5 @@
-GLOBAL write
-GLOBAL read
+GLOBAL writeAsm
+GLOBAL readAsm
 GLOBAL getTime
 GLOBAL putNum
 GLOBAL getCpuData
@@ -27,12 +27,14 @@ GLOBAL _xadd
 GLOBAL _getLock
 GLOBAL _increaseSignal
 GLOBAL _decreaseSignal
+GLOBAL pipeAsm
+GLOBAL closeAsm
+GLOBAL _listPipes
 
 section .text
-    write:
+    writeAsm:
         push rbp
         mov rbp, rsp
-        push rax
         push rbx
         push rcx
         mov rax, 1
@@ -41,16 +43,21 @@ section .text
         int 80h
         pop rcx
         pop rbx
-        pop rax
         mov rsp, rbp
         pop rbp
         ret
 
-    read:
+    readAsm:
         push rbp
         mov rbp, rsp
+        push rbx
+        push rcx
         mov rax, 2
+        mov rbx, rdi
+        mov rcx, rsi
         int 80h
+        pop rcx
+        pop rbx
         mov rsp, rbp
         pop rbp
         ret
@@ -234,7 +241,6 @@ section .text
 	    mov rsp, rbp
 	    pop rbp
 	    ret
-        
 
     readmem:
         push rbp
@@ -338,3 +344,37 @@ section .text
         pop rbp
         ret
 
+    pipeAsm:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 21
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    closeAsm:
+        push rbp
+        mov rbp, rsp
+        push rax
+        push rbx
+        mov rax, 22
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        pop rax
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    _listPipes:
+        push rbp
+        mov rbp, rsp
+        mov rax, 23
+        int 80h
+        mov rsp, rbp
+        pop rbp
+        ret

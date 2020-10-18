@@ -2,8 +2,8 @@
 void inc(uint64_t sem, uint64_t value, uint64_t N);
 
 uint64_t my_create_process__(char * name, uint64_t sem, uint64_t value, uint64_t N){
-  char * argv[] = {&inc, name, 0, sem, value, N};
-  return createProcess(6, argv);
+  char * argv[] = {&inc, name, 0, 0, 1, sem, value, N};
+  return createProcess(8, argv);
 }
 
 uint64_t my_sem_open(char *sem_id, uint64_t initialValue){
@@ -28,8 +28,6 @@ uint64_t my_sem_close(char *sem_id){
 uint64_t global;  //shared memory
 
 void slowInc(uint64_t *p, int64_t inc){
-putDec(getPid());
-printf(" ");
   uint64_t aux = *p;
   aux += inc;
   yield();
@@ -50,7 +48,9 @@ void inc(uint64_t sem, uint64_t value, uint64_t N){
     //printf("\nGLOBAL: ");
     //putDec(global);
     if (sem) my_sem_post(SEM_ID);
-   //for (int j=0; j < 100000000;j++);
+    putDec(getPid());
+    printf(" ");
+    for (int j=0; j < 100000000;j++);
   }
 
   if (sem) my_sem_close(SEM_ID);

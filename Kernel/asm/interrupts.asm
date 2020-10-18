@@ -246,7 +246,7 @@ _exception6Handler:
 
 ;SystemCall
 _irq80Handler:
-	syscallHandler rax, rbx, rcx 
+	syscallHandler rax, rbx, rcx
 
 saveRegisters:
 	push rbp

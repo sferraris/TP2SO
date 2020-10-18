@@ -1,7 +1,7 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem", "pipe"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
@@ -32,17 +32,18 @@ void shellCE() {
 }
 
 void help() {
-    printRed("time: ");printf("Displays current time\n");
-    printRed("cpudata: ");printf("Displays vendor, brand and model of your cpu\n");
-    printRed("cputemp: ");printf("Displays the temperature of your cpu\n");
-    printRed("printmem: ");printf("Receives a pointer in hexa and Displays 32 byte memory dump from that pointer\n");
-    printRed("inforeg: ");printf("Displays register values previously saved with alt+s\n");
-    printRed("zerotest: ");printf("Triggers exception 0\n");
-    printRed("opcodetest: ");printf("Triggers exception 6\n");
-    printRed("ps: ");printf("Lists all active processes\n");
-    printRed("nice: ");printf("Changes priviledge level from a given process. Format: nice pri pid\n");
-    printRed("loop: ");printf("Prints pid after a certain amount of seconds\n");
-    printRed("sem: ");printf("Prints the name, status and ids of the blocked processes for each active semaphore\n");
+    printf("time: Displays current time\n");
+    printf("cpudata:  vendor, brand and model of your cpu\n");
+    printf("cputemp: Displays the temperature of your cpu\n");
+    printf("printmem: Receives a pointer in hexa and Displays 32 byte memory dump from that pointer\n");
+    printf("inforeg: Displays register values previously saved with alt+s\n");
+    printf("zerotest: Triggers exception 0\n");
+    printf("opcodetest: Triggers exception 6\n");
+    printf("ps: Lists all active processes\n");
+    printf("nice: Changes priviledge level from a given process. Format: nice pri pid\n");
+    printf("loop: Prints pid after a certain amount of seconds\n");
+    printf("sem: Prints the name, status and ids of the blocked processes for each active semaphore\n");
+    printf("pipe: Prints the id, status and ids of the blocked processes for each active pipe\n");
 }
 
 void time() {
@@ -167,6 +168,7 @@ void processCommand() {
         case 10:block();break;
         case 11:createLoop();break;
         case 12:listSemaphores();break;
+        case 13:printf(listPipes());break;
         default:printf("Error: command doesnt match\n"); 
     }
 }
@@ -182,29 +184,59 @@ void loop() {
 
 void createLoop() {
     int fg = (shellBuffer[4] == '&') ? 0 : 1;
-    char * argv[] = {loop, "Loop", fg};
-    createProcess(3, argv);
+    char * argv[] = {loop, "Loop", fg, 0, 1};
+    createProcess(5, argv);
 }
 
 void listSemaphores() {
     printSemaphores();
 }
 
+void readPipe() {
+    char buf[50];
+    while (1) {
+        read(buf, 50);
+        printf(buf);
+        if (strcmp(buf, "Exit"))
+            exit();
+    }
+}
+
+void writePipe() {
+    for(int i=0; i < 11; i++) {
+        for (int j=0; j < 100000000; j++);
+        printf("Hola Mundo\n");
+    }
+    printf("Exit");
+    exit();
+}
+
+void pipeTest() {
+    int p[2];
+    int index = pipe(p);
+    char * argv1[] = {readPipe, "readPipe", 0, p[0], 1};
+    createProcess(5, argv1);
+    char * argv2[] = {writePipe, "writePipe", 0, 0, p[1]};
+    createProcess(5, argv2);
+    //close(index);
+}
+
 void initShell() {
     while (1) { 
         putChar('>');
-        char c = getChar();
+        char c;
+        getChar(&c);
         while (c != '\n' ) {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': Tsync();break;
+                case '5': pipeTest();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;
                         }
             }
-            c = getChar();
+            getChar(&c);
         }
         shellBuffer[shellPos]=0;
         shellPos = 0;

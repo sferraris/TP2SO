@@ -2,19 +2,31 @@
 char operationBuffer[100] = {'0'};
 
 void putChar(char c) {
-    write(1,c);
+    char s[2] = {c, 0};
+    writeAsm(s, 1);
+}
+
+int strlen(char * buffer) {
+    int aux = 0;
+    while (buffer[aux] != 0)
+        aux++;
+    return aux;
 }
 
 void printf(char * buffer) {
-    write(2, buffer);
+    writeAsm(buffer, strlen(buffer));
 }
 
-void printRed(char * buffer) {
-    write(3, buffer);
+void getChar(char * c) {
+    readAsm(c, 1);
 }
 
-char getChar() {
-    return read(); 
+int write(char * buffer, int n) {
+    return writeAsm(buffer, n);
+}
+
+int read(char * buffer, int n) {
+    return readAsm(buffer, n);
 }
 
 void getmem(int num, uint64_t*buffer) {
@@ -204,14 +216,14 @@ int changeProcessState(int pid,int state){
 }
 
 int blockProcess(int pid) {
-    changeProcessStateAsm(pid,BLOCKED);
+    return changeProcessStateAsm(pid,BLOCKED);
 }
 
 char * listProcesses() {
     return listProcessesAsm();
 }
 
-void changePriority(int pid,int pri) {
+void changePriority(int pid, int pri) {
     if (pri < 0 || pri > 9)
         printf("Numero incorrecto de privilegio\n");
     niceAsm(pid,pri);
@@ -227,4 +239,16 @@ void increaseSignal(int index) {
 
 void decreaseSignal(int index) {
     _decreaseSignal(index);
+}
+
+int pipe(int p[2]) {
+    return pipeAsm(p);
+}
+
+void close(int index) {
+    closeAsm(index);
+}
+
+char * listPipes() {
+    return _listPipes();
 }

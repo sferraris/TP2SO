@@ -7,6 +7,7 @@ typedef struct {
     int state;
     int priority;
     int foreground;
+    int fd[2];
 }process;
 
 typedef int processMat[PRIORITIES][PROCESSES]; //const
@@ -49,11 +50,10 @@ void detectChar() {
 }
 
 int chooseProcess() {
-    
     if (timeCycle <= 0) {
         currentPos++;
         while (processLists[currentList][currentPri][currentPos] == 0 ||
-               allProcesses[processLists[currentList][currentPri][currentPos]].state != READY) { //falta ++ en pos o timer
+               allProcesses[processLists[currentList][currentPri][currentPos]].state != READY) {
             if ( allProcesses[processLists[currentList][currentPri][currentPos]].state == BLOCKED) {
                 insertProcess(processLists[currentList][currentPri][currentPos], currentPri);
                 processLists[currentList][currentPri][currentPos] = 0;
@@ -106,8 +106,7 @@ int updateForegroundList(){
     return j - 1;
 }
 
-int createProcess(int argc, char * argv[]) { //rip, name, foreground, mas argumentos
-
+int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, write, mas argumentos
     if (totalProcess == PROCESSES)
         return;
     uint64_t finalpos;
@@ -136,19 +135,19 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, mas argume
     i++;
     stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = ( (argc > 6)? argv[6] : 0); //rcx
+    stack[finalpos -i] = ( (argc > 8)? argv[8] : 0); //rcx
     i++;
-    stack[finalpos -i] = ( (argc > 5)? argv[5] : 0); //rdx
+    stack[finalpos -i] = ( (argc > 7)? argv[7] : 0); //rdx
     i++;
     stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = ( (argc > 3)? argv[3] : 0); //rsi
+    stack[finalpos -i] = ( (argc > 5)? argv[5] : 0); //rsi
     i++;
-    stack[finalpos -i] = ( (argc > 4)? argv[4] : 0); //rdi
+    stack[finalpos -i] = ( (argc > 6)? argv[6] : 0); //rdi
     i++;
-    stack[finalpos -i] = ( (argc > 7)? argv[7] : 0); //r8
+    stack[finalpos -i] = ( (argc > 9)? argv[9] : 0); //r8
     i++;
-    stack[finalpos -i] = ( (argc > 8)? argv[8] : 0); //r9
+    stack[finalpos -i] = ( (argc > 10)? argv[10] : 0); //r9
     i++;
     stack[finalpos -i] = 0; //10
     i++;
@@ -168,6 +167,8 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, mas argume
     allProcesses[pos].priority = DEFAULTPRI; //parametro
     allProcesses[pos].foreground = (int) argv[2]; //parametro
     allProcesses[pos].name = argv[1];
+    allProcesses[pos].fd[0] = argv[3];
+    allProcesses[pos].fd[1] = argv[4];
 
     //setear procesos foreground a la lista de foregrounds
     if ( allProcesses[pos].foreground == 1){
@@ -233,26 +234,8 @@ int changeStatePid(int pid, int state) {
     return 0;
 }
 
-
 int getPid() {
     return currentPid;
-}
-
-void printRandom(void* pos) {
-    printString("Prueba: ");
-    printHex(pos);
-}
-
-void printRandomString() {
-    printString("Llego");
-}
-
-void blockProcess(int pid) {
-    allProcesses[pid].state = BLOCKED;
-}
-
-void unblockProcess(int pid) {
-    allProcesses[pid].state = READY;
 }
 
 void removeProcess(int pid,int pri) {
@@ -297,4 +280,8 @@ int isBack() {
 void yield(){
     timeCycle = 0;
    _timertick();
+}
+
+int getFD(int f) {
+    return allProcesses[currentPid].fd[f];
 }

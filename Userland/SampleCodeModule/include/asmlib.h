@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-void write (int fd, void* buffer);
-char read();
+int writeAsm (char * buffer, int n);
+int readAsm (char * buffer, int n);
 int getTime (int fd);
 void putNum(int fd, uint64_t num);
 char * getCpuData(int fd, char * buffer);
@@ -31,5 +31,8 @@ int _xadd(int num,int *s);
 int _getLock(int index);
 void _increaseSignal(int index);
 void _decreaseSignal(int index);
+int pipeAsm(int p[2]);
+void closeAsm(int index);
+char * _listPipes();
 
 #endif

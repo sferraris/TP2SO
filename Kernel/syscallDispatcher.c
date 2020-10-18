@@ -1,32 +1,13 @@
 #include <syscallDispatcher.h>
 
-void print_handler(int fd, void* p) {
-    switch(fd) {
-        case 1: printChar((char) p);break;
-        case 2: printString((char*) p);break;
-        case 3: printStringRed( (char*) p);break;
-        default:  printString("Invalid file descriptor\n");
+int print_handler(char * buffer, int n) {
+    int aux = getFD(1);
+    if (aux == 1) {
+        printString(buffer);
+        return n;
     }
-}
-
-uint64_t read_time(int fd) {
-    return readRTC(fd);
-}
-
-char * data_handler(int fd, char * buffer) {
-    switch(fd) {
-        case 1: return cpuVendor(buffer);break;
-        case 2: return cpuBrand(buffer);break;
-        default:  printString("Invalid file descriptor\n");
-    }
-    return (char *) 0;
-}
-void exit(){
-   changeStatePid(getPid(), KILLED);
-}
-
-int changeProcessState(int pid, int state){
-    return changeStatePid(pid, state);
+    else
+        return pipewrite(getPipe(aux), buffer, n);
 }
 
 char readKey() {
@@ -35,10 +16,36 @@ char readKey() {
     return read_key();
 }
 
+int read_handler(char * buffer, int n) {
+    int aux = getFD(0);
+    if (aux == 0) {
+        *buffer = readKey();
+        return 1;
+    }
+    else
+        return piperead(getPipe(aux), buffer, n);
+}
+
+uint64_t read_time(int fd) {
+    return readRTC(fd);
+}
+
+char * data_handler(int fd, char * buffer) {
+    switch(fd) {
+        case 1: return cpuVendor(buffer);
+        case 2: return cpuBrand(buffer);
+        default:  printString("Invalid file descriptor\n");
+    }
+    return (char *) 0;
+}
+void exit(){
+   changeStatePid(getPid(), KILLED);
+}
+
 void* syscallDispatcher(int p1, void* p2, void* p3) {
     switch(p1) {
-        case 1: print_handler((int) p2, p3);break;
-        case 2: return readKey();break;
+        case 1: return print_handler((char *) p2, (int)p3);break;
+        case 2: return read_handler((char *) p2, (int)p3);break;
         case 3: return read_time((int) p2);break;
         case 4: return data_handler((int) p2, (char *)p3);
         case 5: return cpuModel();
@@ -50,13 +57,16 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 11: return createProcess((int) p2, (char *) p3);break;
         case 12: exit();break;
         case 13: return getPid();
-        case 14: return changeProcessState((uint64_t) p2, (int) p3);
+        case 14: return changeStatePid((uint64_t) p2, (int) p3);
         case 15: return listProcesses();break;
         case 16: nice((int) p2,(int) p3);break;
         case 17: yield();break;
         case 18: return getLock((int) p2);
         case 19: increase((int) p2);break;
         case 20: decrease((int) p2);break;
+        case 21: return pipeOpen((int *) p2);
+        case 22: pipeClose((int) p2);break;
+        case 23: return listPipes();
         default: printString("Invalid syscall number\n");
     }
     return (void *) 0;

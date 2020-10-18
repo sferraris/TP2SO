@@ -6,7 +6,7 @@
 #include <scheduler.h>
 
 void key_handler();
-int* getRegisters();
+int * getRegisters();
 char read_key();
 
 #endif

@@ -284,7 +284,7 @@ void printCharRed(char let) {
     printColorChar(let, 4);
 }
 
-void printString ( char* string) {
+void printString (char* string) {
     int i = 0;
     while (string[i])
         printChar(string[i++]);

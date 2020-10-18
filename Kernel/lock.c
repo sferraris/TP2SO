@@ -4,7 +4,6 @@ int bigLock;
 
 int semaphores[TOTALSEMS];
 
-
 int getLock(int index) {
     return semaphores[index];
 }

@@ -10,8 +10,7 @@
 
 void putChar(char c);
 void printf(char * buffer);
-char getChar();
-void printRed(char * buffer);
+void getChar(char * c);
 void getmem(int num, uint64_t*buffer);
 void putDec(int num);
 void putHex(uint64_t num);
@@ -37,11 +36,14 @@ void yield();
 int getPid();
 int killProcess(int pid);
 int changeProcessState(int pid,int state);
-int blockProcess(int pid);
 char * listProcesses();
 void changePriority(int pid,int pri);
 int getLock(int index);
 void increaseSignal(int index);
 void decreaseSignal(int index);
+int blockProcess(int pid);
+int pipe(int p[2]);
+void close(int index);
+char * listPipes();
 
 #endif
