@@ -8,7 +8,6 @@ void blockProcessPipe(int * p, int pid) {
     if (i == PIPEPROCESSES)
         return;
     p[i] = pid;
-    printDec(pid);
     changeStatePid(pid, BLOCKED);
 }
 
@@ -26,28 +25,23 @@ int pipewrite(pipe_t *p, char *addr, int n) {
             blockProcessPipe(p->wProcesses, getPid());
         p->data[p->nwrite++ % PIPESIZE] = addr[i];
     }
-    p->data[p->nwrite % PIPESIZE] = 0;
+    p->data[p->nwrite % PIPESIZE] = -1;
     releaseProcessesPipe(p->rProcesses);
-    //printDec(p->nwrite);
     return i;
 }
 
 int piperead(pipe_t *p, char *addr, int n) {
     int i;
-    for (i = 0; i < n && p->data[p->nread % PIPESIZE] != 0; i++) { //ver compa
-        printDec(p->nread);
-        printString(" ");
-        printDec(p->nwrite);
-        printString(" ");
+    for (i = 0; i < n && p->data[p->nread % PIPESIZE] != -1; i++) { //ver compa
         while (p->nread >= p->nwrite) {
             blockProcessPipe(p->rProcesses, getPid());
         }
         addr[i] = p->data[p->nread++ % PIPESIZE];
     }
     addr[i] = 0;
+    if (p->data[p->nread % PIPESIZE] == -1)
+        p->data[p->nread % PIPESIZE] = 0;
     releaseProcessesPipe(p->rProcesses);
-    //printDec(p->nread);
-    //printChar(" ");
     return i;
 }
 
@@ -89,7 +83,6 @@ void listBlockedProcesses(int * p, char * buf) {
     int cant = 0;
     for (int i = 0; i < PIPEPROCESSES; i++) {
         if (p[i] != 0) {
-            printString("holis ");
             aux[cant++] = dectostr(p[i]);
             aux[cant++] = ", ";
         }
