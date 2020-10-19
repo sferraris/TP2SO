@@ -30,6 +30,10 @@ GLOBAL _decreaseSignal
 GLOBAL pipeAsm
 GLOBAL closeAsm
 GLOBAL _listPipes
+GLOBAL semPostAsm
+GLOBAL semWaitAsm
+GLOBAL semOpenAsm
+GLOBAL semCloseAsm
 
 section .text
     writeAsm:
@@ -375,6 +379,57 @@ section .text
         mov rbp, rsp
         mov rax, 23
         int 80h
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    semPostAsm:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 24
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    semWaitAsm:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 25
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    semOpenAsm:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        push rcx
+        mov rax, 26
+        mov rbx, rdi
+        mov rcx, rsi
+        int 80h
+        pop rcx
+        pop rbx
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    semCloseAsm:
+        push rbp
+        mov rbp, rsp
+        push rbx
+        mov rax, 27
+        mov rbx, rdi
+        int 80h
+        pop rbx
         mov rsp, rbp
         pop rbp
         ret

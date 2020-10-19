@@ -19,6 +19,8 @@ node * createTreeRec(int level, void * pos, uint64_t size) {
         nodes[aux].leftChild = createTreeRec(level + 1, pos, size/2);
         nodes[aux].rightChild = createTreeRec(level + 1, pos + size/2, size/2);
     }
+    nodes[aux].filled = 0;
+    nodes[aux].childs = 0;
     nodes[aux].pos = pos;
     return &nodes[aux];
 }
@@ -28,7 +30,7 @@ void createTree() {
 }
 
 void * lookPosRec(node * n, uint64_t nsize, uint64_t size, int level) {
-    if (size > (nsize/2) || level == MAXLEVEL) {
+    if (size > (nsize/2) || level >= MAXLEVEL) {
         if (n->filled == 0 && n->childs == 0) {
             n->filled = 1;
             return n->pos;
@@ -49,7 +51,8 @@ void * lookPosRec(node * n, uint64_t nsize, uint64_t size, int level) {
 void * malloc(uint64_t size) {
     if (size > TOTALHEAP)
         return (void *)0;
-    return lookPosRec(root, TOTALHEAP, size, 0);
+    void * aux = lookPosRec(root, TOTALHEAP, size, 0);
+    return aux;
 }
 
 void freeRec(node * n, void * pos) {
@@ -77,6 +80,7 @@ void free(void * p) {
 }
 
 void initMem() {
+    memset(HEAPSTART, 0, TOTALHEAP*2);
     nodes = HEAPSTART + TOTALHEAP;
     createTree();
 }

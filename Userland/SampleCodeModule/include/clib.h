@@ -18,7 +18,6 @@ void putBin(uint64_t num);
 void putDouble(double num);
 int strcmp(char * str1, char * str2);
 int strcmpParams(char * str1, char * str2);
-int isVowel(char c);
 int getHours();
 int getMinutes();
 int getSeconds();
@@ -46,5 +45,10 @@ int blockProcess(int pid);
 int pipe(int p[2]);
 void close(int index);
 char * listPipes();
+uint64_t sem_post(char * sem);
+uint64_t sem_wait(char * sem);
+uint64_t sem_open(char * sem, int status);
+uint64_t sem_close(char * sem);
+int isVowel(char c);
 
 #endif

@@ -34,5 +34,9 @@ void _decreaseSignal(int index);
 int pipeAsm(int p[2]);
 void closeAsm(int index);
 char * _listPipes();
+uint64_t semPostAsm(char * sem);
+uint64_t semWaitAsm(char * sem);
+uint64_t semOpenAsm(char * sem, int status);
+uint64_t semCloseAsm(char * sem);
 
 #endif

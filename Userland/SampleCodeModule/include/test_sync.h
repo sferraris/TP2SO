@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 #include <clib.h>
-#include <semaphores.h>
 
 int Tsync();
 

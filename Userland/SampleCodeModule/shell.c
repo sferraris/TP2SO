@@ -1,7 +1,7 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem", "pipe", "cat", "wc", "filter"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem", "pipe", "cat", "wc", "filter", "phylo"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
@@ -47,6 +47,7 @@ void help() {
     printf("cat: Prints stdin as received\n");
     printf("wc: Counts the lines from the input\n");
     printf("filter: Filters the vowels from the input\n");
+    printf("phylo: Simulates the phylosopher problem\n");
 }
 
 void time() {
@@ -285,6 +286,7 @@ void processCommand() {
         case 14:cat(0, 1);yield();break;
         case 15:wc(0, 1);yield();break;
         case 16:filter(0, 1);yield();break;
+        case 17:createPhylo();yield();break;
         default:printf("Error: command doesnt match\n"); 
     }
 }
@@ -305,7 +307,7 @@ void createLoop() {
 }
 
 void listSemaphores() {
-    printSemaphores();
+    //printSemaphores();
 }
 
 void readPipe() {
@@ -346,7 +348,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': pipeTest();break;
+                case '5': mainPhylo(5);break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;

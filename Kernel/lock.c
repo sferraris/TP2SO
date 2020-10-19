@@ -1,29 +1,29 @@
 #include <lock.h>
 
-int bigLock;
+int abigLock;
 
-int semaphores[TOTALSEMS];
+int asemaphores[TOTALSEMS];
 
 int getLock(int index) {
-    return semaphores[index];
+    return asemaphores[index];
 }
 
-void release(void) {
-    _xchg(&bigLock,0);
+void arelease() {
+    _xchg(&abigLock,0);
 }
 
-void acquire(void) {
-    while (_xchg(&bigLock,1));
+void aacquire() {
+    while (_xchg(&abigLock,1));
 }
 
 void increase(uint64_t index) {
-    acquire();
-    semaphores[index]++;
-    release();
+    aacquire();
+    asemaphores[index]++;
+    arelease();
 }
 
 void decrease(uint64_t index) {
-    acquire();
-    semaphores[index]--;
-    release();
+    aacquire();
+    asemaphores[index]--;
+    arelease();
 }

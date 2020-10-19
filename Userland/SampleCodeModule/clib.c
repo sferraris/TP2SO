@@ -66,14 +66,10 @@ int strcmp(char * str1, char * str2) {
         return 0;
     int i;
     for (i=0; str1[i] && str2[i]; i++) {
-        if (str1[i]!=str2[i])
+        if (str1[i] != str2[i])
             return 0;
     }
     return str1[i] == 0  && str2[i] == 0;
-}
-
-int isVowel(char c){
-    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U');
 }
 
 int getHours() {
@@ -156,7 +152,6 @@ uint32_t uintToBase(uint64_t value, uint32_t base) {
 	}
     return digits;
 }
-
 
 void putDec(int num) {
     int aux = 1;
@@ -256,4 +251,24 @@ void close(int index) {
 
 char * listPipes() {
     return _listPipes();
+}
+
+uint64_t sem_post(char * sem) {
+    return semPostAsm(sem);
+}
+
+uint64_t sem_wait(char * sem) {
+    return semWaitAsm(sem);
+}
+
+uint64_t sem_open(char * sem, int status) {
+    return semOpenAsm(sem, status);
+}
+
+uint64_t sem_close(char * sem) {
+    return semCloseAsm(sem);
+}
+
+int isVowel(char c){
+    return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U');
 }

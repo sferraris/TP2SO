@@ -43,6 +43,7 @@ void haltcpu(void);
 void saveRegisters(int *buff);
 void recoverExceptionRegisters(int *buff);
 void schedule_handler(void);
+int _xadd(int num,int *s);
 
 
 

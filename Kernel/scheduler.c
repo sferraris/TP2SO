@@ -112,9 +112,9 @@ int updateForegroundList(){
 
 int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, write, mas argumentos
     if (totalProcess == PROCESSES)
-        return;
+        return -1;
     if ( argv[2] == 1 && foregroundIndex + 1 == FOREGROUNDPROCESSES)
-        return;
+        return -1;
     uint64_t finalpos;
     uint64_t* stack = malloc(STACKSIZE);
     if ( stack == (void*) 0)
@@ -125,7 +125,6 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, writ
         free(stack);
         return -1;
     }
-
     int i = 1;
     stack[finalpos -i] = 0x0;
     i++;
@@ -175,18 +174,15 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, writ
     allProcesses[pos].name = argv[1];
     allProcesses[pos].fd[0] = argv[3];
     allProcesses[pos].fd[1] = argv[4];
-    
-
     //setear procesos foreground a la lista de foregrounds
-    if ( allProcesses[pos].foreground == 1){
+    if (allProcesses[pos].foreground == 1){
         foregroundIndex = updateForegroundList();
-        if ( foregroundIndex != 0){
-            allProcesses[foregroundProcesses[foregroundIndex]].state = BLOCKED;
+        if (foregroundIndex != 0){
+            changeStatePid(foregroundProcesses[foregroundIndex], BLOCKED);
             foregroundIndex++;
         }
         foregroundProcesses[foregroundIndex] = pos;
     }
-
     insertProcess(pos, DEFAULTPRI); //cambiar con parametro
 
     totalProcess++;
@@ -199,7 +195,7 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, writ
 
 int foregroundPos(int pid){
     for ( int i = 0; i < FOREGROUNDPROCESSES; i++){
-        if ( foregroundProcesses[i] == pid){
+        if (foregroundProcesses[i] == pid){
             return i;
         }
     }

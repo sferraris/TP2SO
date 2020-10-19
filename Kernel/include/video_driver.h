@@ -25,7 +25,7 @@ char * hextostr(uint64_t value);
 void printDec(uint64_t value);
 char * dectostr(uint64_t value);
 void printBase(uint64_t value, uint32_t base);
-
+int strcmp(char * str1, char * str2);
 void printBar();
 void unprintBar();
 

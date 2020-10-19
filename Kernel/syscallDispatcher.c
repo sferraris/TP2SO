@@ -67,6 +67,10 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 21: return pipeOpen((int *) p2);
         case 22: pipeClose((int) p2);break;
         case 23: return listPipes();
+        case 24: return sem_post((char *) p2);
+        case 25: return sem_wait((char *) p2);
+        case 26: return sem_open((char *) p2, (int) p3);
+        case 27: return sem_close((char *) p2);
         default: printString("Invalid syscall number\n");
     }
     return (void *) 0;

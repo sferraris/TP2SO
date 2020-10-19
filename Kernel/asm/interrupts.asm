@@ -21,6 +21,7 @@ GLOBAL _exception6Handler
 GLOBAL timerTickHandler
 GLOBAL _timertick
 GLOBAL _xchg
+GLOBAL _xadd
 
 EXTERN irqDispatcher
 EXTERN exceptionDispatcher
@@ -174,7 +175,12 @@ _xchg:
     xchg [rdi], rax
     mov rsp,rbp
     pop rbp
-    ret   
+    ret
+
+_xadd:
+    mov rax,rdi
+    lock xadd [rsi],eax
+    ret
 
 _hlt:
 	sti
