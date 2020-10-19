@@ -38,5 +38,6 @@ uint64_t semPostAsm(char * sem);
 uint64_t semWaitAsm(char * sem);
 uint64_t semOpenAsm(char * sem, int status);
 uint64_t semCloseAsm(char * sem);
+char * _listSemaphores();
 
 #endif

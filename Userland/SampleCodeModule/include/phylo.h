@@ -10,9 +10,7 @@
 #define HUNGRY 1
 #define EATING 2
 #define GLOBAL "global"
-#define CANT "cant"
 
 void createPhylo();
-void mainPhylo(int phyl);
 
 #endif

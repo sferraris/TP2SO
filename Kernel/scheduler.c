@@ -19,6 +19,8 @@ int totalProcess = 0;
 int shellCreated = 0;
 int startflag = 0;
 
+int auxProcessCreated = 0;
+
 int currentPri = 0;
 int currentPos = 0;
 int currentList = 0;
@@ -39,17 +41,81 @@ void * schedule(void * rsp) {
     if (foregroundFlag == 0)
         currentPid = chooseProcess();
     else {
+        changeStatePid(foregroundProcesses[foregroundIndex], READY);
         currentPid = foregroundProcesses[foregroundIndex];
+        insertProcess(processLists[currentList][allProcesses[currentPid].priority][currentPid], allProcesses[currentPid].priority);
+        processLists[currentList][allProcesses[currentPid].priority][currentPid] = 0;
         foregroundFlag = 0;
     }
     return allProcesses[currentPid].rsp;
 }
 
 void detectChar() {
-    foregroundFlag = 1;
+    if (allProcesses[foregroundProcesses[foregroundIndex]].state == BLOCKED)
+        foregroundFlag = 1;
+}
+
+void auxProcess() {
+    while(1) {
+        _hlt();
+    }
+}
+
+void createAuxProcess() {
+    uint64_t finalpos;
+    uint64_t* stack = malloc(STACKSIZE);
+    if (stack == (void*) 0)
+        return -1;
+    finalpos = STACKSIZE;
+    int pos = 0;
+    int i = 1;
+    stack[finalpos -i] = 0x0;
+    i++;
+    stack[finalpos -i] = stack + finalpos;
+    i++;
+    stack[finalpos -i] = 0x202;
+    i++;
+    stack[finalpos -i] = 0x8;
+    i++;
+    stack[finalpos -i] = auxProcess;
+    i++;
+    stack[finalpos -i] = 0;
+    i++;
+    stack[finalpos -i] = 0;
+    i++;
+    stack[finalpos -i] = 0; //rcx
+    i++;
+    stack[finalpos -i] = 0; //rdx
+    i++;
+    stack[finalpos -i] = 0;
+    i++;
+    stack[finalpos -i] = 0; //rsi
+    i++;
+    stack[finalpos -i] = 0; //rdi
+    i++;
+    stack[finalpos -i] = 0; //r8
+    i++;
+    stack[finalpos -i] = 0; //r9
+    i++;
+    stack[finalpos -i] = 0; //10
+    i++;
+    stack[finalpos -i] = 0;
+    i++;
+    stack[finalpos -i] = 0;
+    i++;
+    stack[finalpos -i] = 0;
+    i++;
+    stack[finalpos -i] = 0;
+    i++;
+    stack[finalpos -i] = 0;
+    allProcesses[pos].state = KILLED;
+    allProcesses[pos].stackPos = stack;
+    allProcesses[pos].rsp = stack + STACKSIZE -i;
+    auxProcessCreated = 1;
 }
 
 int chooseProcess() {
+    int flag = 0;
     if (timeCycle <= 0) {
         currentPos++;
         while (processLists[currentList][currentPri][currentPos] == 0 ||
@@ -62,9 +128,15 @@ int chooseProcess() {
                 currentPos = 0; //chequear tumba
                 currentPri++;
                 if (currentPri == PRIORITIES) { //const
+                    flag++;
                     swapList();
                     currentPri = 0;
                     currentPos = 0;
+                    if (flag == 2) {
+                        if (auxProcessCreated == 0)
+                            createAuxProcess();
+                        return 0;
+                    }
                 }
             } else
                 currentPos++;
@@ -95,10 +167,11 @@ int searchPos() {
         return - 1;
     return pos;
 }
+
 int updateForegroundList(){
     if (foregroundIndex == -1)
-        return 0;
-    int i, j;
+        return -1;
+    int i, j=0;
     for ( i = 0; i < FOREGROUNDPROCESSES; i++){
         if ( foregroundProcesses[i] != 0 )
             foregroundProcesses[j++] = foregroundProcesses[i];
@@ -174,18 +247,20 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, writ
     allProcesses[pos].name = argv[1];
     allProcesses[pos].fd[0] = argv[3];
     allProcesses[pos].fd[1] = argv[4];
+    insertProcess(pos, DEFAULTPRI); //cambiar con parametro
+    totalProcess++;
     //setear procesos foreground a la lista de foregrounds
     if (allProcesses[pos].foreground == 1){
         foregroundIndex = updateForegroundList();
-        if (foregroundIndex != 0){
-            changeStatePid(foregroundProcesses[foregroundIndex], BLOCKED);
-            foregroundIndex++;
-        }
+        foregroundFlag = 0;
+        foregroundIndex++;
         foregroundProcesses[foregroundIndex] = pos;
+        if (foregroundIndex > 0) {
+            //printDec(foregroundProcesses[foregroundIndex]);
+            //printDec(allProcesses[foregroundProcesses[foregroundIndex]].state);
+            changeStatePid(foregroundProcesses[foregroundIndex-1], BLOCKED);
+        }
     }
-    insertProcess(pos, DEFAULTPRI); //cambiar con parametro
-
-    totalProcess++;
     if (startflag == 0) {
         startflag = 1;
         _hlt();
@@ -203,34 +278,31 @@ int foregroundPos(int pid){
 }
 
 void liberateResourcesPid(int pid) {
-    if ( allProcesses[pid].foreground == 1 ){
+    if (allProcesses[pid].foreground == 1 ){
         int pos = foregroundPos(pid);
         foregroundProcesses[pos] = 0;
         foregroundIndex = updateForegroundList();
         allProcesses[foregroundProcesses[foregroundIndex]].state = READY;
     }
+    eraseProcessSem(pid);
     free(allProcesses[pid].stackPos);
     totalProcess--;
 }
 
+int changeStateFromShell(int pid, int state) {
+    if (state == BLOCKED && allProcesses[pid].state == BLOCKED)
+        return changeStatePid(pid, READY);
+    return changeStatePid(pid, state);
+}
+
 int changeStatePid(int pid, int state) {
-    if ( allProcesses[pid].state == KILLED){
+    if ( allProcesses[pid].state == KILLED)
         return -1;
-    }
-    if (state == BLOCKED) {
-        if (allProcesses[pid].state == BLOCKED)
-            allProcesses[pid].state = READY;
-        else
-            allProcesses[pid].state = BLOCKED;
-    }
-    else
-        allProcesses[pid].state = state;
-    if(state == KILLED){
+    allProcesses[pid].state = state;
+    if(state == KILLED)
         liberateResourcesPid(pid);
-    }
-    if (pid == currentPid) {
+    if (pid == currentPid)
         yield();
-	}
     return 0;
 }
 

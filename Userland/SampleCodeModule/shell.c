@@ -1,7 +1,7 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "printmem","inforeg", "zerotest", "opcodetest","ps","nice","block", "loop", "sem", "pipe", "cat", "wc", "filter", "phylo"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "mem", "inforeg", "zerotest", "opcodetest","ps","nice","block", "kill", "loop", "sem", "pipe", "cat", "wc", "filter", "phylo"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
@@ -35,7 +35,7 @@ void help() {
     printf("time: Displays current time\n");
     printf("cpudata:  vendor, brand and model of your cpu\n");
     printf("cputemp: Displays the temperature of your cpu\n");
-    printf("printmem: Receives a pointer in hexa and Displays 32 byte memory dump from that pointer\n");
+    printf("mem: Receives a pointer in hexa and Displays 32 byte memory dump from that pointer\n");
     printf("inforeg: Displays register values previously saved with alt+s\n");
     printf("zerotest: Triggers exception 0\n");
     printf("opcodetest: Triggers exception 6\n");
@@ -141,6 +141,21 @@ void block() {
             pid = pid * 10 + (shellBuffer[7] - '0');
         }
         blockProcess(pid);
+    }
+}
+
+void kill() {
+    int pid;
+    if (shellBuffer[4] == ' ') {
+        pid = shellBuffer[5] - '0';
+        if (pid < 0 || pid > 9) {
+            printf("Numero incorrecto de ID\n");
+            return;
+        }
+        if (isNumberHexa(shellBuffer[6])) {
+            pid = pid * 10 + (shellBuffer[6] - '0');
+        }
+        killProcess(pid);
     }
 }
 
@@ -280,13 +295,14 @@ void processCommand() {
         case 8:printf(listProcesses());break;
         case 9:nice();break;
         case 10:block();break;
-        case 11:createLoop();break;
-        case 12:listSemaphores();break;
-        case 13:printf(listPipes());break;
-        case 14:cat(0, 1);yield();break;
-        case 15:wc(0, 1);yield();break;
-        case 16:filter(0, 1);yield();break;
-        case 17:createPhylo();yield();break;
+        case 11:kill();break;
+        case 12:createLoop();break;
+        case 13:printf(listSemaphores());break;
+        case 14:printf(listPipes());break;
+        case 15:cat(0, 1);break;
+        case 16:wc(0, 1);break;
+        case 17:filter(0, 1);break;
+        case 18:createPhylo();break;
         default:printf("Error: command doesnt match\n"); 
     }
 }
@@ -304,10 +320,6 @@ void createLoop() {
     int fg = (shellBuffer[4] == '&') ? 0 : 1;
     char * argv[] = {loop, "Loop", fg, 0, 1};
     createProcess(5, argv);
-}
-
-void listSemaphores() {
-    //printSemaphores();
 }
 
 void readPipe() {
@@ -348,7 +360,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': mainPhylo(5);break;
+                case '5': Tsync();break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;

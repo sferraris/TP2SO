@@ -272,3 +272,7 @@ uint64_t sem_close(char * sem) {
 int isVowel(char c){
     return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u' || c == 'A' || c == 'E' || c == 'I' || c == 'O' || c == 'U');
 }
+
+char * listSemaphores() {
+    return _listSemaphores();
+}

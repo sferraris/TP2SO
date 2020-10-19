@@ -12,5 +12,7 @@ uint64_t sem_post(char * name);
 uint64_t sem_wait(char * name);
 uint64_t sem_open(char * name, int status);
 uint64_t sem_close(char * name);
+char * printSemaphores();
+void eraseProcessSem(int pid);
 
 #endif

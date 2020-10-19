@@ -83,21 +83,33 @@ void addPhylo() {
 
 void removePhylo() {
     sem_wait(GLOBAL);
-    if (cantPhylos > 3) {
+    if (cantPhylos > 1) {
         cantPhylos--;
-        sem_wait(sems[cantPhylos]);
-        sem_close(sems[cantPhylos]);
         killProcess(pidArray[cantPhylos]);
+        sem_close(sems[cantPhylos]);
+        state[cantPhylos] = THINKING;
     }
     else
         printf("Can not remove any more phylos\n");
     sem_post(GLOBAL);
 }
 
+void exitPhylo() {
+    sem_wait(GLOBAL);
+    while (cantPhylos > 0) {
+        cantPhylos--;
+        killProcess(pidArray[cantPhylos]);
+        sem_close(sems[cantPhylos]);
+        state[cantPhylos] = THINKING;
+    }
+    sem_close(GLOBAL);
+    printf("Exiting Phylo\n");
+    exit();
+}
+
 void mainPhylo(int phyl) {
     char * argv[] = {philosopher, "phylosopher", 0, 0, 1, 0};
     sem_open(GLOBAL,1);
-    //sem_open(CANT,1);
     for (int i = 0; i < phyl; i++) {
         semCreate(i);
         argv[5] = i;
@@ -112,7 +124,7 @@ void mainPhylo(int phyl) {
         switch(c) {
             case 'a': addPhylo();break;
             case 'r': removePhylo();break;
-            //case 'e': exitPhylo();
+            case 'e': exitPhylo();
         }
     }
 }

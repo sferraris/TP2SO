@@ -50,5 +50,6 @@ uint64_t sem_wait(char * sem);
 uint64_t sem_open(char * sem, int status);
 uint64_t sem_close(char * sem);
 int isVowel(char c);
+char * listSemaphores();
 
 #endif

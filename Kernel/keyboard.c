@@ -32,10 +32,11 @@ void key_handler() {
     if (key>0 && keySet[key][special]) {
         if (keySet[key][special] == 5)
             saveRegisters(registerBuffer);
-        else
+        else {
             saveChar(keySet[key][special]);
+            detectChar();
+        }
     }
-    detectChar();
 }
 
 int* getRegisters() {
@@ -52,7 +53,7 @@ void saveChar(char c) {
 
 char read_key() {
     while (!buffer[readCurrent])
-        _hlt();
+        changeStatePid(getPid(), BLOCKED);
     char aux = buffer[readCurrent];
     buffer[readCurrent] = 0;
     if (readCurrent == 49)

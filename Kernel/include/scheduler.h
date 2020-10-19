@@ -4,6 +4,7 @@
 #include <memlib.h>
 #include <interrupts.h>
 #include <video_driver.h>
+#include <semaphores.h>
 
 #define STACKSIZE (1024 * 4)
 #define PROCESSES 100
@@ -24,5 +25,6 @@ void nice(int pid,int pri);
 int isBack();
 void detectChar();
 int getFD(int f);
+int changeStateFromShell(int pid, int state);
 
 #endif

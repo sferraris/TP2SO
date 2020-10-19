@@ -119,6 +119,13 @@ void sleep(int sem) {
 int findNextProcess(int sem){
     if (semaphores[sem].cantProcesses == 0)
         return -1;
+    //int i = semaphores[sem].nextProcess;
+    //semaphores[sem].nextProcess++;
+    while (semaphores[sem].processesList[semaphores[sem].nextProcess] == -1) {
+        semaphores[sem].nextProcess++;
+        if (semaphores[sem].nextProcess == TOTALPROCESSES)
+            semaphores[sem].nextProcess = 0;
+    }
     int i = semaphores[sem].nextProcess;
     semaphores[sem].nextProcess++;
     if (semaphores[sem].nextProcess == TOTALPROCESSES)
@@ -170,32 +177,48 @@ void wakeup(int sem) {
         semaphores[sem].cantProcesses--;
         changeStatePid(pid, READY); //Desbloquear el proceso
     }
-    //else
-        //increaseSignal(sem);
 }
-/*
-void printSemaphores() {
-    if (cantSem == 0) {
-        printf("No semaphores available\n");
-        return;
+
+void listBProcesses(int * s, char * buf, int cProcesses) {
+    char * aux[TOTALPROCESSES*2];
+    int cant = 0;
+    for (int i = 0; i < TOTALPROCESSES && cant < cProcesses; i++) {
+        if (s[i] > 0) {
+            aux[cant++] = dectostr(s[i]);
+            aux[cant++] = ", ";
+        }
     }
-    for (int i = 0; i < TOTALSEM; i++) {
+    strcat(buf, aux, cant-1);
+}
+
+char * printSemaphores() {
+    int cant = 0;
+    char ret[TOTALSEM*100] = {0}, status[10], bp[50] = {0};
+    for (int s=0; s < TOTALSEM; s++) {
+        if (semaphores[s].name != 0) {
+            cant++;
+            strcpy(status, dectostr(semaphores[s].status));
+            listBProcesses(semaphores[s].processesList, bp, semaphores[s].cantProcesses);
+            char *aux[] = {"Sem: ", semaphores[s].name, "\n",
+                           "Status: ", status, "\n",
+                           "Blocked Processes: ", bp, "\n\n"};
+            strcat(ret, aux, 9);
+        }
+    }
+    if (cant == 0)
+        strcpy(ret, "No semaphores available\n");
+    return ret;
+}
+
+void eraseProcessSem(int pid) {
+    for(int i=0; i < TOTALSEM; i++) {
         if (semaphores[i].name != 0) {
-            printf("Sem: ");
-            printf(semaphores[i].name);
-            printf("\t\t");
-            printf("Status: ");
-            putDec(semaphores[i].status);
-            printf("\t\t");
-            printf("Blocked Processes: ");
-            for (int j = 0; j < TOTALPROCESSES; j++) {
-                if (semaphores[i].processesList[j] != 0) {
-                    putDec(semaphores[i].processesList[j]);
-                    printf(" ");
+            for (int j=0; j < TOTALPROCESSES; j++) {
+                if (semaphores[i].processesList[j] == pid) {
+                    semaphores[i].processesList[j] = -1;
+                    semaphores[i].cantProcesses--;
                 }
             }
-            printf("\n");
         }
     }
 }
- */

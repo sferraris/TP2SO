@@ -57,7 +57,7 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 11: return createProcess((int) p2, (char *) p3);break;
         case 12: exit();break;
         case 13: return getPid();
-        case 14: return changeStatePid((uint64_t) p2, (int) p3);
+        case 14: return changeStateFromShell((uint64_t) p2, (int) p3);
         case 15: return listProcesses();break;
         case 16: nice((int) p2,(int) p3);break;
         case 17: yield();break;
@@ -71,6 +71,7 @@ void* syscallDispatcher(int p1, void* p2, void* p3) {
         case 25: return sem_wait((char *) p2);
         case 26: return sem_open((char *) p2, (int) p3);
         case 27: return sem_close((char *) p2);
+        case 28: return printSemaphores();
         default: printString("Invalid syscall number\n");
     }
     return (void *) 0;
