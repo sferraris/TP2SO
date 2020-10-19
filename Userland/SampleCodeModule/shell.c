@@ -1,13 +1,16 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "mem", "inforeg", "zerotest", "opcodetest","ps","nice","block", "kill", "loop", "sem", "pipe", "cat", "wc", "filter", "phylo"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "mem","inforeg", "zerotest", "opcodetest","ps","nice","block", "kill","loop", "sem", "pipe", "cat", "wc", "filter", "phylo"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
 void printMem();
 void processCommand();
 int matchArray();
+
+
+
 
 int matchArray() {
     int j;
@@ -41,6 +44,8 @@ void help() {
     printf("opcodetest: Triggers exception 6\n");
     printf("ps: Lists all active processes\n");
     printf("nice: Changes priviledge level from a given process. Format: nice pri pid\n");
+    printf("block: blocks a process given its pid\n");
+    printf("loop: kills a process given its pid\n");
     printf("loop: Prints pid after a certain amount of seconds\n");
     printf("sem: Prints the name, status and ids of the blocked processes for each active semaphore\n");
     printf("pipe: Prints the id, status and ids of the blocked processes for each active pipe\n");
@@ -144,19 +149,19 @@ void block() {
     }
 }
 
-void kill() {
-    int pid;
-    if (shellBuffer[4] == ' ') {
-        pid = shellBuffer[5] - '0';
-        if (pid < 0 || pid > 9) {
-            printf("Numero incorrecto de ID\n");
-            return;
-        }
-        if (isNumberHexa(shellBuffer[6])) {
-            pid = pid * 10 + (shellBuffer[6] - '0');
-        }
-        killProcess(pid);
-    }
+void kill() { 
+    int pid; 
+    if (shellBuffer[4] == ' ') { 
+        pid = shellBuffer[5] - '0'; 
+        if (pid < 0 || pid > 9) { 
+            printf("Numero incorrecto de ID\n"); 
+            return; 
+        } 
+        if (isNumberHexa(shellBuffer[6])) { 
+            pid = pid * 10 + (shellBuffer[6] - '0'); 
+        } 
+        killProcess(pid); 
+    } 
 }
 
 void inforeg() {
@@ -170,17 +175,19 @@ void inforeg() {
         printf("Registers not saved\n");
 }
 
-void catFunction(){
-    char catBuff[250];
+void catFunction(int piped){
+    char catBuff[250] = {0};
     int catIndex;
     while (1) { 
         char c;
         getChar(&c);
         while (c != '\n' ) {
             if ( catIndex < 250) { 
-                putChar(c);
+                putChar(c); //putCHAr a fd[0] - 0
                 catBuff[catIndex++] = c;
             }
+            if ( c == '$')
+                exit();
             getChar(&c);
         }
         if ( c == '\n')
@@ -188,21 +195,19 @@ void catFunction(){
         catBuff[catIndex] = 0;
 
         catIndex = 0;
-        if ( strcmp(catBuff, "exit") )
-            exit();
-        else{
-            printf(catBuff);
-            putChar('\n');
+        if ( piped == 0 ){
+            //printf(catBuff); //printf fd[2] - 2
+            //putChar('\n');
         }
     }
 
 }
-void cat(int input, int output){
-    char * argv[] = {catFunction, "cat", 1, input, output};
-    createProcess(5, argv);
+void cat(int input, int output, int foreground, int piped){
+    char * argv[] = {catFunction, "cat", foreground, input, output, piped};
+    createProcess(6, argv);
 }
 
-void wcFunction(){
+void wcFunction(int piped){
     char wcBuff[250];
     int wcIndex;
     int lineCount = 0;
@@ -230,9 +235,9 @@ void wcFunction(){
     exit();
 }
 
-void wc(int input, int output){
-    char * argv[] = {wcFunction, "wc", 1, input, output};
-    createProcess(5, argv);
+void wc(int input, int output, int foreground, int piped){
+    char * argv[] = {wcFunction, "wc", foreground, input, output, piped};
+    createProcess(6, argv);
 }
 
 char * filterVowels(char * buff){
@@ -241,6 +246,7 @@ char * filterVowels(char * buff){
     while ( buff[i] != 0){
         if ( !isVowel(buff[i]) ){
             aux[j++] = buff[i];
+            
         }
         i++;
     }
@@ -248,41 +254,44 @@ char * filterVowels(char * buff){
     return aux;
 }
 
-void filterFunction(){
-    char filterBuff[250];
-    int filterIndex;
+void filterFunction(int piped){
+    char filterBuff[250] = {0};
+    int filterIndex = 0;
     while (1) { 
         char c;
         getChar(&c);
+        filterBuff[filterIndex++] = c;
         while (c != '\n' ) {
             if ( filterIndex < 250) { 
                 putChar(c);
-                filterBuff[filterIndex++] = c;
+                filterBuff[filterIndex] = c;
+                filterIndex++;
             }
+            if ( c == '$')
+                exit();
             getChar(&c);
         }
         if ( c == '\n')
             putChar(c);
+        
         filterBuff[filterIndex] = 0;
-
         filterIndex = 0;
-        if ( strcmp(filterBuff, "exit") )
-            exit();
-        char * filtered = filterVowels(filterBuff);
+    
+        char * filtered = filterVowels(&filterBuff[1]);
+    
         printf(filtered);
         free(filtered);
+        
         putChar('\n');
     }
 }
 
-void filter(int input, int output){
-    char * argv[] = {filterFunction, "filter", 1, input, output};
-    createProcess(5, argv);
+void filter(int input, int output, int foreground, int piped){
+    char * argv[] = {filterFunction, "filter", foreground, input, output, piped};
+    createProcess(6, argv);
 }
 
-void processCommand() {
-    putChar('\n');
-    int command = matchArray();
+void commandSwitch(int command,int input,int output,int foreground, int piped) {
     switch(command) {
         case 0:help();break;
         case 1:time();break;
@@ -299,12 +308,42 @@ void processCommand() {
         case 12:createLoop();break;
         case 13:printf(listSemaphores());break;
         case 14:printf(listPipes());break;
-        case 15:cat(0, 1);break;
-        case 16:wc(0, 1);break;
-        case 17:filter(0, 1);break;
+        case 15:cat(input, output,foreground, piped);break;
+        case 16:wc(input, output,foreground, piped);break;
+        case 17:filter(input, output,foreground, piped);break;
         case 18:createPhylo();break;
         default:printf("Error: command doesnt match\n"); 
     }
+
+}
+
+void processPipes(int izq,int der) {
+    //izq eentrada: standar salida:pipe
+    //der entrada: pipe salida: standar
+    int processPipe[2];
+    int index = pipe(processPipe);
+    if (index == -1)
+        return;
+    commandSwitch(der,processPipe[1],1,0, 1);
+    //aca
+    commandSwitch(izq,0,processPipe[0],1, 1);
+    exit();
+}
+
+void processCommand() {
+    putChar('\n');
+    int command = matchArray();
+    int len = strlen(commandArray[command]);
+    if (shellBuffer[len] == ' ' && shellBuffer[len + 1] == '|' && shellBuffer[len + 2] == ' ') {
+        strcpy(shellBuffer,&shellBuffer[len + 3]);
+        int command2 = matchArray();
+        char * argv[] = {processPipes, "processPipes", 0, 0, 1, command, command2};
+        createProcess(7, argv);
+    }
+    else {
+        commandSwitch(command,0,1,1, 0);
+    }
+    
 }
 
 void loop() {
@@ -360,7 +399,7 @@ void initShell() {
             switch(c) {
                 case BACKSPACE: shellBackSpace();break;
                 case TAB: shellCE();break;
-                case '5': Tsync();break;
+                case '5': mainPhylo(5);break;
                 default:if ( shellPos < 100) { 
                             putChar(c);
                             shellBuffer[shellPos++] = c;

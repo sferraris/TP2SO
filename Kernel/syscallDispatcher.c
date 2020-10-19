@@ -1,6 +1,6 @@
 #include <syscallDispatcher.h>
 
-int print_handler(char * buffer, int n) {
+int print_handler(int output, char * buffer, int n) {
     int aux = getFD(1);
     if (aux == 1) {
         printString(buffer);
@@ -16,7 +16,7 @@ char readKey() {
     return read_key();
 }
 
-int read_handler(char * buffer, int n) {
+int read_handler(int input,char * buffer, int n) {
     int aux = getFD(0);
     if (aux == 0) {
         *buffer = readKey();
@@ -42,10 +42,10 @@ void exit(){
    changeStatePid(getPid(), KILLED);
 }
 
-void* syscallDispatcher(int p1, void* p2, void* p3) {
+void* syscallDispatcher(int p1, void* p2, void* p3, void* p4) {
     switch(p1) {
-        case 1: return print_handler((char *) p2, (int)p3);break;
-        case 2: return read_handler((char *) p2, (int)p3);break;
+        case 1: return print_handler((int)p2, (char *) p3, (int)p4);break;
+        case 2: return read_handler((int)p2, (char *) p3, (int)p4);break;
         case 3: return read_time((int) p2);break;
         case 4: return data_handler((int) p2, (char *)p3);
         case 5: return cpuModel();

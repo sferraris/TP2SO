@@ -34,10 +34,6 @@ int piperead(pipe_t *p, char *addr, int n) {
     int i;
     for (i = 0; i < n && p->data[p->nread % PIPESIZE] != -1; i++) { //ver compa
         while (p->nread >= p->nwrite) {
-            printDec(p->nread);
-            printString(" ");
-            printDec(p->nwrite);
-            printString(" ");
             blockProcessPipe(p->rProcesses, getPid());
         }
         addr[i] = p->data[p->nread++ % PIPESIZE];

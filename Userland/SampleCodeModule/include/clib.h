@@ -51,5 +51,5 @@ uint64_t sem_open(char * sem, int status);
 uint64_t sem_close(char * sem);
 int isVowel(char c);
 char * listSemaphores();
-
+void strcpy(char * str1, char * str2);
 #endif

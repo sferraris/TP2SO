@@ -7,7 +7,7 @@ typedef struct {
     int state;
     int priority;
     int foreground;
-    int fd[2];
+    int fd[4];
 }process;
 
 typedef int processMat[PRIORITIES][PROCESSES]; //const
@@ -245,8 +245,10 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, writ
     allProcesses[pos].priority = DEFAULTPRI; //parametro
     allProcesses[pos].foreground = (int) argv[2]; //parametro
     allProcesses[pos].name = argv[1];
-    allProcesses[pos].fd[0] = argv[3];
-    allProcesses[pos].fd[1] = argv[4];
+    allProcesses[pos].fd[0] = 0;
+    allProcesses[pos].fd[1] = 1;
+    allProcesses[pos].fd[2] = argv[3];
+    allProcesses[pos].fd[3] = argv[4];
     insertProcess(pos, DEFAULTPRI); //cambiar con parametro
     totalProcess++;
     //setear procesos foreground a la lista de foregrounds
