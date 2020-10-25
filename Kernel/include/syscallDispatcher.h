@@ -12,6 +12,6 @@
 #include <lock.h>
 #include <pipes.h>
 
-void * syscallDispatcher(int p1, void* p2, void* p3, void* p4);
+void * syscallDispatcher(int p1, void* p2, void* p3);
 
 #endif

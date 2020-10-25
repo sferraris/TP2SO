@@ -53,7 +53,7 @@ void saveChar(char c) {
 
 char read_key() {
     while (!buffer[readCurrent])
-        changeStatePid(getPid(), BLOCKED);
+        waitForChar(getPid());
     char aux = buffer[readCurrent];
     buffer[readCurrent] = 0;
     if (readCurrent == 49)

@@ -26,5 +26,7 @@ int isBack();
 void detectChar();
 int getFD(int f);
 int changeStateFromShell(int pid, int state);
+void waitForChar(int pid);
+void wait(int pid);
 
 #endif

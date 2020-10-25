@@ -283,3 +283,7 @@ int isVowel(char c){
 char * listSemaphores() {
     return _listSemaphores();
 }
+
+void wait(int pid) {
+    waitAsm(pid);
+}

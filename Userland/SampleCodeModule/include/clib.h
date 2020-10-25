@@ -4,13 +4,15 @@
 #include <asmlib.h>
 #include <stdint.h>
 
-#define KILLED 0x0
+#define KILLED 0
 #define BLOCKED 1
-#define READY 0x2
+#define READY 2
 
 void putChar(char c);
 void printf(char * buffer);
 void getChar(char * c);
+int write(char * buffer, int n);
+int read(char * buffer, int n);
 void getmem(int num, uint64_t*buffer);
 void putDec(int num);
 void putHex(uint64_t num);
@@ -52,4 +54,6 @@ uint64_t sem_close(char * sem);
 int isVowel(char c);
 char * listSemaphores();
 void strcpy(char * str1, char * str2);
+void wait(int pid);
+
 #endif

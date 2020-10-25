@@ -35,6 +35,7 @@ GLOBAL semWaitAsm
 GLOBAL semOpenAsm
 GLOBAL semCloseAsm
 GLOBAL _listSemaphores
+GLOBAL waitAsm
 
 section .text
     writeAsm:
@@ -440,6 +441,20 @@ section .text
         mov rbp, rsp
         mov rax, 28
         int 80h
+        mov rsp, rbp
+        pop rbp
+        ret
+
+    waitAsm:
+        push rbp
+        mov rbp, rsp
+        push rax
+        push rbx
+        mov rax, 29
+        mov rbx, rdi
+        int 80h
+        pop rbx
+        pop rax
         mov rsp, rbp
         pop rbp
         ret

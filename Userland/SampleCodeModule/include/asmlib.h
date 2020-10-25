@@ -39,5 +39,6 @@ uint64_t semWaitAsm(char * sem);
 uint64_t semOpenAsm(char * sem, int status);
 uint64_t semCloseAsm(char * sem);
 char * _listSemaphores();
+void waitAsm(int pid);
 
 #endif

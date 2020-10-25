@@ -1,13 +1,15 @@
 #include <scheduler.h>
 
 typedef struct {
+    int waitingForChar;
     char * name;
     void * rsp;
     void * stackPos;
     int state;
     int priority;
     int foreground;
-    int fd[4];
+    int fd[2];
+    int waiting;
 }process;
 
 typedef int processMat[PRIORITIES][PROCESSES]; //const
@@ -18,18 +20,14 @@ int currentPid = 1;
 int totalProcess = 0;
 int shellCreated = 0;
 int startflag = 0;
-
 int auxProcessCreated = 0;
-
 int currentPri = 0;
 int currentPos = 0;
 int currentList = 0;
 int timeCycle = PRIORITIES - DEFAULTPRI - 1; //const
-
 int foregroundFlag = 0;
 int foregroundProcesses[FOREGROUNDPROCESSES];
 int foregroundIndex = -1;
-
 
 void * schedule(void * rsp) {
     if ( startflag == 0)
@@ -50,9 +48,16 @@ void * schedule(void * rsp) {
     return allProcesses[currentPid].rsp;
 }
 
+void waitForChar(int pid) {
+    allProcesses[pid].waitingForChar = 1;
+    changeStatePid(pid, BLOCKED);
+}
+
 void detectChar() {
-    if (allProcesses[foregroundProcesses[foregroundIndex]].state == BLOCKED)
+    if (allProcesses[foregroundProcesses[foregroundIndex]].waitingForChar == 1) {
         foregroundFlag = 1;
+        allProcesses[foregroundProcesses[foregroundIndex]].waitingForChar = 0;
+    }
 }
 
 void auxProcess() {
@@ -183,7 +188,7 @@ int updateForegroundList(){
     return j - 1;
 }
 
-int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, write, mas argumentos
+int createProcess(int argc, char * argv[]) { //rip, name, foreground, input, output mas argumentos
     if (totalProcess == PROCESSES)
         return -1;
     if ( argv[2] == 1 && foregroundIndex + 1 == FOREGROUNDPROCESSES)
@@ -245,10 +250,11 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, read, writ
     allProcesses[pos].priority = DEFAULTPRI; //parametro
     allProcesses[pos].foreground = (int) argv[2]; //parametro
     allProcesses[pos].name = argv[1];
-    allProcesses[pos].fd[0] = 0;
-    allProcesses[pos].fd[1] = 1;
-    allProcesses[pos].fd[2] = argv[3];
-    allProcesses[pos].fd[3] = argv[4];
+    allProcesses[pos].fd[0] = argv[3];
+    allProcesses[pos].fd[1] = argv[4];
+    allProcesses[pos].state = READY;
+    allProcesses[pos].waiting = 0;
+    allProcesses[pos].waitingForChar = 0;
     insertProcess(pos, DEFAULTPRI); //cambiar con parametro
     totalProcess++;
     //setear procesos foreground a la lista de foregrounds
@@ -285,6 +291,10 @@ void liberateResourcesPid(int pid) {
         foregroundProcesses[pos] = 0;
         foregroundIndex = updateForegroundList();
         allProcesses[foregroundProcesses[foregroundIndex]].state = READY;
+    }
+    if (allProcesses[pid].waiting != 0) {
+        changeStatePid(allProcesses[pid].waiting, READY);
+        allProcesses[pid].waiting = 0;
     }
     eraseProcessSem(pid);
     free(allProcesses[pid].stackPos);
@@ -358,4 +368,11 @@ void yield(){
 
 int getFD(int f) {
     return allProcesses[currentPid].fd[f];
+}
+
+void wait(int pid) {
+    if (allProcesses[pid].state!= KILLED) {
+        allProcesses[pid].waiting = currentPid;
+        changeStatePid(currentPid, BLOCKED);
+    }
 }
