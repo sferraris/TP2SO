@@ -1,7 +1,7 @@
 #include <shell.h>
 
 char shellBuffer[100] = {0};
-char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "mem","inforeg", "zerotest", "opcodetest","ps","nice","block", "kill","loop", "sem", "pipe", "cat", "wc", "filter", "phylo"};
+char * commandArray[COMMANDS]= {"help", "time", "cpudata", "cputemp", "mem","inforeg", "zerotest", "opcodetest","ps","nice","block", "kill","loop", "sem", "pipe", "cat", "wc", "filter", "phylo", "testmm", "testprocesses", "testprio", "testsem"};
 int shellPos = 0;
 char* regNames[15] = {"RAX: ", "RBX: ","RCX: ","RDX: ","RBP: ","RDI: ","RSI: ","R8: ","R9: ","R10: ","R11: ","R12: ","R13: ","R14: ","R15: "};
 
@@ -172,6 +172,26 @@ void inforeg() {
         printf("Registers not saved\n");
 }
 
+void TMM(){
+    char * argv[] = {testMM, "Testmm", 0, 0, 1};
+    createProcess(5, argv);
+}
+
+void TPRO(){
+    char * argv[] = {proTest, "testprocesses", 0, 0, 1};
+    createProcess(5, argv);
+}
+
+void TPRI(){
+    char * argv[] = {priorityTest, "testprio", 0, 0, 1};
+    createProcess(5, argv);
+}
+
+void TSYNC(){
+    char * argv[] = {Tsync, "testsem", 0, 0, 1};
+    createProcess(5, argv);
+}
+
 void writingProcess() {
     while (1) {
         char c;
@@ -186,8 +206,8 @@ void writingProcess() {
                         shellBuffer[shellPos++] = c;
                     }
                     if (c == '$') {
-                        putChar('\n');
-                        shellBuffer[shellPos] = 0;
+                        shellBuffer[0] = '$';
+                        shellBuffer[1] = 0;
                         shellPos = 0;
                         exit();
                     }
@@ -199,28 +219,30 @@ void writingProcess() {
         shellBuffer[shellPos+1] = 0;
         shellPos = 0;
         printf(shellBuffer);
-        yield();
     }
 }
 
 void catFunction() {
     char catBuf[100];
     int size;
-    while(1) {
-        size = read(catBuf, 100);
+    do {
+        size = read(2, catBuf, 100);
         printf(catBuf);
-    }
+    } while(catBuf[0] != '$');
+    putChar('\n');
+    exit();
 }
+
 int cat(int input, int output, int left){
     char * argv[] = {catFunction, "cat", 0, input, output};
     if (left == 1) {
         int p[2];
         int pipeId = pipe(p);
         argv[3] = p[0];
-        int catId = createProcess(5, argv);
+        int catID = createProcess(5, argv);
         char * argv2[] = {writingProcess, "wp", 1, 0, p[1]};
         createProcess(5, argv2);
-        killProcess(catId);
+        wait(catID);
         close(pipeId);
         return 0;
     }
@@ -229,7 +251,7 @@ int cat(int input, int output, int left){
 }
 
 void wcFunction(int piped){
-    char wcBuff[250];
+    char wcBuff[100];
     int wcIndex;
     int lineCount = 0;
     char c;
@@ -246,7 +268,7 @@ void wcFunction(int piped){
             }
         getChar(&c);
     }
-    if ( wcIndex > 0){
+    if (wcIndex > 0){
         putChar('\n');
         lineCount++;
     }
@@ -256,9 +278,21 @@ void wcFunction(int piped){
     exit();
 }
 
-void wc(int input, int output, int foreground, int piped){
-    char * argv[] = {wcFunction, "wc", foreground, input, output, piped};
-    createProcess(6, argv);
+void wc(int input, int output, int foreground, int piped, int left){
+    char * argv[] = {wcFunction, "wc", 0, input, output};
+    if (left == 1) {
+        int p[2];
+        int pipeId = pipe(p);
+        argv[3] = p[0];
+        int wcId = createProcess(5, argv);
+        char * argv2[] = {writingProcess, "wp", 1, 0, p[1]};
+        createProcess(5, argv2);
+        killProcess(wcId);
+        close(pipeId);
+        return 0;
+    }
+    else
+        return createProcess(5, argv);
 }
 
 char * filterVowels(char * buff){
@@ -333,6 +367,10 @@ void commandSwitch(int command,int input,int output, int left) {
         //case 16:wc(input, output,foreground);break;
         //case 17:filter(input, output,foreground);break;
         case 18:createPhylo();break;
+        case 19: TMM();break;
+        case 20: TPRO();break;
+        case 21: TPRI();break;
+        case 22: TSYNC();break;
         default:printf("Error: command doesnt match\n"); 
     }
 }

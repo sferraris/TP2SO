@@ -11,8 +11,8 @@
 void putChar(char c);
 void printf(char * buffer);
 void getChar(char * c);
-int write(char * buffer, int n);
-int read(char * buffer, int n);
+int write(int output, char * buffer, int n);
+int read(int input, char * buffer, int n);
 void getmem(int num, uint64_t*buffer);
 void putDec(int num);
 void putHex(uint64_t num);

@@ -3,8 +3,8 @@
 
 #include <stdint.h>
 
-int writeAsm (char * buffer, int n);
-int readAsm (char * buffer, int n);
+int writeAsm (int output, char * buffer, int n);
+int readAsm (int input, char * buffer, int n);
 int getTime (int fd);
 void putNum(int fd, uint64_t num);
 char * getCpuData(int fd, char * buffer);

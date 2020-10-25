@@ -3,7 +3,7 @@ char operationBuffer[100] = {'0'};
 
 void putChar(char c) {
     char s[2] = {c, 0};
-    writeAsm(s, 1);
+    writeAsm(1, s, 1);
 }
 
 int strlen(char * buffer) {
@@ -14,19 +14,19 @@ int strlen(char * buffer) {
 }
 
 void printf(char * buffer) {
-    writeAsm(buffer, strlen(buffer));
+    writeAsm(1, buffer, strlen(buffer));
 }
 
 void getChar(char * c) {
-    readAsm(c, 1);
+    readAsm(0, c, 1);
 }
 
-int write(char * buffer, int n) {
-    return writeAsm(buffer, n);
+int write(int output, char * buffer, int n) {
+    return writeAsm(output, buffer, n);
 }
 
-int read(char * buffer, int n) {
-    return readAsm(buffer, n);
+int read(int input, char * buffer, int n) {
+    return readAsm(input, buffer, n);
 }
 
 void getmem(int num, uint64_t*buffer) {

@@ -131,12 +131,13 @@ SECTION .text
 	iretq
 %endmacro
 
-%macro syscallHandler 3
+%macro syscallHandler 4
 	pushStateNoRax
 	
 	mov rdi, %1 ; pasaje nro de syscall
 	mov rsi, %2 ; parametros de la syscall
 	mov rdx, %3
+	mov rcx, %4
 	call syscallDispatcher
 	push rax
 
@@ -252,7 +253,7 @@ _exception6Handler:
 
 ;SystemCall
 _irq80Handler:
-	syscallHandler rax, rbx, rcx
+	syscallHandler rax, rbx, rcx, rdx
 
 saveRegisters:
 	push rbp

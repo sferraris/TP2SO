@@ -8,7 +8,7 @@ typedef struct {
     int state;
     int priority;
     int foreground;
-    int fd[2];
+    int fd[4];
     int waiting;
 }process;
 
@@ -250,8 +250,10 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, input, out
     allProcesses[pos].priority = DEFAULTPRI; //parametro
     allProcesses[pos].foreground = (int) argv[2]; //parametro
     allProcesses[pos].name = argv[1];
-    allProcesses[pos].fd[0] = argv[3];
-    allProcesses[pos].fd[1] = argv[4];
+    allProcesses[pos].fd[0] = 0;
+    allProcesses[pos].fd[1] = 1;
+    allProcesses[pos].fd[2] = argv[3];
+    allProcesses[pos].fd[3] = argv[4];
     allProcesses[pos].state = READY;
     allProcesses[pos].waiting = 0;
     allProcesses[pos].waitingForChar = 0;
