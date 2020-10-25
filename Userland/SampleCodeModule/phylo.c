@@ -129,7 +129,7 @@ void mainPhylo(int phyl) {
     }
 }
 
-void createPhylo() {
-    char * argv[] = {mainPhylo, "PhyloProcess", 1, 0, 1, 5};
+void createPhylo(int foreground) {
+    char * argv[] = {mainPhylo, "PhyloProcess", foreground, 0, 1, 5};
     createProcess(6, argv);
 }

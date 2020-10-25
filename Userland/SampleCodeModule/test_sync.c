@@ -90,5 +90,6 @@ void test_no_sync(){
 
 int Tsync(){
   test_sync();
+  exit();
   return 0;
 }

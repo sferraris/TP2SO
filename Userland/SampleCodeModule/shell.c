@@ -346,6 +346,10 @@ void filter(int input, int output, int foreground){
     createProcess(6, argv);
 }
 
+void phylo() {
+    int fg = (shellBuffer[5] == '&') ? 0 : 1;
+    createPhylo(fg);
+}
 void commandSwitch(int command,int input,int output, int left) {
     switch(command) {
         case 0:help();break;
@@ -366,7 +370,7 @@ void commandSwitch(int command,int input,int output, int left) {
         case 15:cat(input, output, left);break;
         //case 16:wc(input, output,foreground);break;
         //case 17:filter(input, output,foreground);break;
-        case 18:createPhylo();break;
+        case 18:phylo();break;
         case 19: TMM();break;
         case 20: TPRO();break;
         case 21: TPRI();break;

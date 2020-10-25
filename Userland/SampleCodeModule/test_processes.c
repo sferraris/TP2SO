@@ -93,5 +93,6 @@ void test_processes(){
 
 int proTest(){
   test_processes();
+  exit();
   return 0;
 }

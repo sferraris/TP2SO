@@ -11,6 +11,6 @@
 #define EATING 2
 #define GLOBAL "global"
 
-void createPhylo();
+void createPhylo(int foreground);
 
 #endif
