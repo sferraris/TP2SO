@@ -161,30 +161,25 @@ uint32_t uintToBase(uint64_t value, uint32_t base) {
 }
 
 void putDec(int num) {
-    int aux = 1;
-    if ( num < 0){
-        printf("-");
-        aux = -1;
-    }
-    uintToBase(num * aux, 10);
-    printf(operationBuffer);
+    int digits = uintToBase(num, 10);
+    write(3, operationBuffer, digits);
 }
 
 void putHex(uint64_t num) {
-    uintToBase(num, 16);
-    printf(operationBuffer);
+    int digits = uintToBase(num, 16);
+    write(3, operationBuffer, digits);
 }
 
 void putFilledHex (uint64_t num) {
-    uint32_t digits = uintToBase(num, 16);
-    for ( int i = 0; i < 16-digits; i++)
-        putChar('0');
-    printf(operationBuffer);
+    int digits = uintToBase(num, 16);
+    for (int i = 0; i < 16-digits; i++)
+        write(3, "0", 1);
+    write(3, operationBuffer, digits);
 }
 
 void putBin(uint64_t num) {
-    uintToBase(num, 2);
-    printf(operationBuffer);
+    int digits = uintToBase(num, 2);
+    write(3, operationBuffer, digits);
 }
 
 uint64_t getTemp() {

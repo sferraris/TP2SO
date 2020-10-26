@@ -15,8 +15,8 @@ void * memset1(void * destination, int32_t c, uint64_t length) {
     while(length--) {
         dst[length] = chr;
         if (length < 26500) {
-            putHex(&dst[length]);
-            putChar(' ');
+            //putHex(&dst[length]);
+            //putChar(' ');
         }
     }
 
@@ -80,6 +80,5 @@ void test_mm(){
 
 int testMM(){
   test_mm();
-  exit();
   return 0;
 }

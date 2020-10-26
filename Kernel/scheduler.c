@@ -153,7 +153,6 @@ int chooseProcess() {
         return processLists[1-currentList][currentPri][currentPos];
     }
     timeCycle--;
-
     return currentPid;
 }
 
@@ -302,7 +301,6 @@ void liberateResourcesPid(int pid) {
     eraseProcessSem(pid);
     free(allProcesses[pid].stackPos);
     totalProcess--;
-    removeProcess(pid,allProcesses[pid].priority);
 }
 
 int changeStateFromShell(int pid, int state) {
@@ -328,7 +326,6 @@ int getPid() {
 
 void removeProcess(int pid,int pri) {
     processLists[currentList][pri][pid] = 0;
-    processLists[1-currentList][pri][pid] = 0;
 }
 
 void nice(int pid,int pri) {

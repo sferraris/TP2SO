@@ -1,7 +1,7 @@
 #include <test_prio.h>
 
 #define MINOR_WAIT 10000000                               // TODO: To prevent a process from flooding the screen
-#define WAIT      1000000000                              // TODO: Long enough to see theese processes beeing run at least twice
+#define WAIT      100000000                              // TODO: Long enough to see theese processes beeing run at least twice
 
 uint64_t _my_getpid(){
   return getPid();
@@ -104,6 +104,5 @@ void test_prio(){
 
 int priorityTest(){
   test_prio();
-  exit();
   return 0;
 }
