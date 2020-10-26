@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <keyboard.h>
 
 extern char getKey();
@@ -29,7 +31,7 @@ void key_handler() {
         case 18446744073709551544:case 56:alt=2-alt;break; 
     }
     int special = (alt>shift)?alt:shift;
-    if (key>0 && keySet[key][special]) {
+    if (key>0 && key < 87 && keySet[key][special]) {
         if (keySet[key][special] == 5)
             saveRegisters(registerBuffer);
         else {

@@ -8,6 +8,12 @@
 #define BLOCKED 1
 #define READY 2
 
+#define BACKGROUND 0
+#define FOREGROUND 1
+
+#define STD_IN 0
+#define STD_OUT 1
+
 void putChar(char c);
 void printf(char * buffer);
 void getChar(char * c);
@@ -18,6 +24,7 @@ void putDec(int num);
 void putHex(uint64_t num);
 void putBin(uint64_t num);
 void putDouble(double num);
+char * dectostr(uint64_t value);
 int strcmp(char * str1, char * str2);
 int strcmpParams(char * str1, char * str2);
 int getHours();
@@ -37,12 +44,8 @@ void exit();
 void yield();
 int getPid();
 int killProcess(int pid);
-int changeProcessState(int pid,int state);
 char * listProcesses();
 void changePriority(int pid,int pri);
-int getLock(int index);
-void increaseSignal(int index);
-void decreaseSignal(int index);
 int blockProcess(int pid);
 int pipe(int p[2]);
 void close(int index);
@@ -54,6 +57,7 @@ uint64_t sem_close(char * sem);
 int isVowel(char c);
 char * listSemaphores();
 void strcpy(char * str1, char * str2);
+void strcat(char * str1, char * str2);
 void wait(int pid);
 int strlen(char * buffer);
 int isNumberHexa(char c);

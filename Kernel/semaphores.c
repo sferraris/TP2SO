@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <semaphores.h>
 
 typedef struct {
@@ -15,12 +17,11 @@ int cantSem = 0;
 uint64_t bigLock = 0;
 
 int getSem(char * name) {
-    int aux = -1;
-    for (int i=0; i < TOTALSEM && aux == -1; i++) {
+    for (int i=0; i < TOTALSEM; i++) {
         if (strcmp(semaphores[i].name, name))
             return i;
     }
-    return aux;
+    return -1;
 }
 
 int nextSem(){
@@ -40,11 +41,11 @@ int createSem(char * name, int status) {
     sem.status = status;
     for (int i=0; i<TOTALPROCESSES;i++)
         sem.processesList[i] = 0;
+    sem.processes = 0;
+    sem.cantProcesses = 0;
+    sem.nextProcess = 0;
+    sem.openProcesses = 1;
     semaphores[index] = sem;
-    semaphores[index].processes = 0;
-    semaphores[index].cantProcesses = 0;
-    semaphores[index].nextProcess = 0;
-    semaphores[index].openProcesses = 1;
     cantSem++;
     return 1;
 }
@@ -91,7 +92,7 @@ void cleanSem(int index) {
     semaphores[index].nextProcess = 0;
     semaphores[index].cantProcesses = 0;
     for (int i=0; i < TOTALPROCESSES; i++)
-        semaphores[index].processesList[TOTALPROCESSES] = 0;
+        semaphores[index].processesList[i] = 0;
 }
 
 uint64_t sem_close(char * name){
@@ -119,8 +120,6 @@ void sleep(int sem) {
 int findNextProcess(int sem){
     if (semaphores[sem].cantProcesses == 0)
         return -1;
-    //int i = semaphores[sem].nextProcess;
-    //semaphores[sem].nextProcess++;
     while (semaphores[sem].processesList[semaphores[sem].nextProcess] == -1) {
         semaphores[sem].nextProcess++;
         if (semaphores[sem].nextProcess == TOTALPROCESSES)
@@ -190,6 +189,7 @@ void listBProcesses(int * s, char * buf, int cProcesses) {
     }
     strcat(buf, aux, cant-1);
 }
+
 char ret[TOTALSEM*100];
 char * printSemaphores() {
     int cant = 0, i = 0;

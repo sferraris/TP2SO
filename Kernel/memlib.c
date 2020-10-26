@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <memlib.h>
 
 typedef struct n {
@@ -54,7 +56,6 @@ void * lookPosRec(node * n, uint64_t nsize, uint64_t size, int level) {
 }
 
 void * malloc(uint64_t size) {
-    printString("Buddy");
     if (size > TOTALHEAP)
         return (void *)0;
     void * aux = lookPosRec(root, TOTALHEAP, size, 0);
@@ -100,8 +101,6 @@ void setBitmap (int loc, int blocks);
 void unsetBitmap (int loc);
 
 void * malloc (uint64_t size) {
-    printString("Bitmap");
-    uint64_t aux = size;
     int blocksCount = (size/HEAPBLOCK) + (((size%HEAPBLOCK)==0)? 0 : 1);
     int loc = mapLocation(blocksCount);
     if (loc == -1)

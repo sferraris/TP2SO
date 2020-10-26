@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <scheduler.h>
 
 typedef struct {
@@ -12,7 +14,7 @@ typedef struct {
     int waiting;
 }process;
 
-typedef int processMat[PRIORITIES][PROCESSES]; //const
+typedef int processMat[PRIORITIES][PROCESSES];
 processMat processLists[2];
 process allProcesses[PROCESSES];
 
@@ -24,7 +26,7 @@ int auxProcessCreated = 0;
 int currentPri = 0;
 int currentPos = 0;
 int currentList = 0;
-int timeCycle = PRIORITIES - DEFAULTPRI - 1; //const
+int timeCycle = PRIORITIES - DEFAULTPRI - 1;
 int foregroundFlag = 0;
 int foregroundProcesses[FOREGROUNDPROCESSES];
 int foregroundIndex = -1;
@@ -73,7 +75,7 @@ void auxProcess() {
 
 void createAuxProcess() {
     uint64_t finalpos;
-    uint64_t* stack = malloc(STACKSIZE);
+    uint64_t * stack = malloc(STACKSIZE);
     if (stack == (void*) 0)
         return ;
     finalpos = STACKSIZE;
@@ -139,13 +141,12 @@ int chooseProcess() {
                 processLists[currentList][currentPri][currentPos] = 0;
             }
             if (currentPos == PROCESSES - 1) {
-                currentPos = 0; //chequear tumba
+                currentPos = 0;
                 currentPri++;
-                if (currentPri == PRIORITIES) { //const
+                if (currentPri == PRIORITIES) {
                     flag++;
                     swapList();
                     currentPri = 0;
-                    currentPos = 0;
                     if (flag == 2) {
                         if (auxProcessCreated == 0)
                             createAuxProcess();
@@ -157,7 +158,7 @@ int chooseProcess() {
         }
         insertProcess(processLists[currentList][currentPri][currentPos], currentPri);
         processLists[currentList][currentPri][currentPos] = 0;
-        timeCycle = PRIORITIES - currentPri - 1; //constante
+        timeCycle = PRIORITIES - currentPri - 1;
 
         return processLists[1-currentList][currentPri][currentPos];
     }
@@ -165,11 +166,9 @@ int chooseProcess() {
     return currentPid;
 }
 
-
-
 int searchPos() {
     int pos = 1;
-    while (allProcesses[pos].state != KILLED && pos < PROCESSES)
+    while (pos < PROCESSES && allProcesses[pos].state != KILLED)
         pos++;
     if (pos == PROCESSES)
         return - 1;
@@ -191,7 +190,7 @@ int updateForegroundList(){
     return j - 1;
 }
 
-uint64_t createProcess(int argc, char * argv[]) { //rip, name, foreground, input, output mas argumentos
+uint64_t createProcess(int argc, char * argv[]) { //rip, name, foreground, input, output, mas argumentos
     if (totalProcess == PROCESSES)
         return -1;
     if ( (uint64_t)argv[2] == 1 && foregroundIndex + 1 == FOREGROUNDPROCESSES)
@@ -250,8 +249,8 @@ uint64_t createProcess(int argc, char * argv[]) { //rip, name, foreground, input
     allProcesses[pos].state = READY;
     allProcesses[pos].stackPos = stack;
     allProcesses[pos].rsp = stack + STACKSIZE -i;
-    allProcesses[pos].priority = DEFAULTPRI; //parametro
-    allProcesses[pos].foreground = (uint64_t) argv[2]; //parametro
+    allProcesses[pos].priority = DEFAULTPRI;
+    allProcesses[pos].foreground = (uint64_t) argv[2];
     allProcesses[pos].name = argv[1];
     allProcesses[pos].fd[0] = 0;
     allProcesses[pos].fd[1] = 1;
@@ -260,7 +259,7 @@ uint64_t createProcess(int argc, char * argv[]) { //rip, name, foreground, input
     allProcesses[pos].state = READY;
     allProcesses[pos].waiting = 0;
     allProcesses[pos].waitingForChar = 0;
-    insertProcess(pos, DEFAULTPRI); //cambiar con parametro
+    insertProcess(pos, DEFAULTPRI);
     totalProcess++;
     //setear procesos foreground a la lista de foregrounds
     if (allProcesses[pos].foreground == 1){
@@ -268,11 +267,8 @@ uint64_t createProcess(int argc, char * argv[]) { //rip, name, foreground, input
         foregroundFlag = 0;
         foregroundIndex++;
         foregroundProcesses[foregroundIndex] = pos;
-        if (foregroundIndex > 0) {
-            //printDec(foregroundProcesses[foregroundIndex]);
-            //printDec(allProcesses[foregroundProcesses[foregroundIndex]].state);
+        if (foregroundIndex > 0)
             changeStatePid(foregroundProcesses[foregroundIndex-1], BLOCKED);
-        }
     }
     if (startflag == 0) {
         startflag = 1;
@@ -282,10 +278,9 @@ uint64_t createProcess(int argc, char * argv[]) { //rip, name, foreground, input
 }
 
 int foregroundPos(int pid){
-    for ( int i = 0; i < FOREGROUNDPROCESSES; i++){
-        if (foregroundProcesses[i] == pid){
+    for (int i = 0; i < FOREGROUNDPROCESSES; i++){
+        if (foregroundProcesses[i] == pid)
             return i;
-        }
     }
     return -1;
 }
@@ -293,7 +288,8 @@ int foregroundPos(int pid){
 void liberateResourcesPid(int pid) {
     if (allProcesses[pid].foreground == 1 ){
         int pos = foregroundPos(pid);
-        foregroundProcesses[pos] = 0;
+        if (pos != -1)
+            foregroundProcesses[pos] = 0;
         foregroundIndex = updateForegroundList();
         allProcesses[foregroundProcesses[foregroundIndex]].state = READY;
     }
@@ -341,9 +337,8 @@ void nice(int pid,int pri) {
 char retsch[PROCESSES*100];
 char * listProcesses() {
     int j=0, i = 0;
-    while (retsch[i] != 0){
+    while (retsch[i] != 0)
         retsch[i++] = 0;
-    }
     char auxID[10], auxPri[10], auxRSP[10], auxRBP[10];
     for (int pid=0; pid < PROCESSES && j < totalProcess;pid++) {
         if (allProcesses[pid].state != KILLED) {

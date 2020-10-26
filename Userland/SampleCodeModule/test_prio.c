@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <test_prio.h>
 
 #define MINOR_WAIT 10000000                               // TODO: To prevent a process from flooding the screen
@@ -6,7 +8,6 @@
 uint64_t _my_getpid(){
   return getPid();
 }
-
 
 void _my_nice(uint64_t pid, uint64_t newPrio){
   changePriority(pid, newPrio);
@@ -29,19 +30,18 @@ void bussy_wait(uint64_t n){
   for (i = 0; i < n; i++);
 }
 
-
 void _endless_loop(){
   uint64_t pid = _my_getpid();
 
-  while(1){
-    putDec(pid);
-    printf(" ");
-    bussy_wait(MINOR_WAIT);
+  while(1) {
+      putDec(pid);
+      printf(" ");
+      bussy_wait(MINOR_WAIT);
   }
 }
 
 uint64_t _my_create_process(char * name){
-  char * argv[] = {(char *)_endless_loop, name, 0};
+  char * argv[] = {(char *)_endless_loop, name, BACKGROUND, STD_IN, STD_OUT};
   return createProcess(3, argv);
 }
 
@@ -70,7 +70,6 @@ void test_prio(){
         break;
     }
   }
-  printf("salio del nice");
   bussy_wait(WAIT);
   printf("\nBLOCKING...\n");
 

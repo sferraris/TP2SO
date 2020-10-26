@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <video_driver.h>
 
 struct vbe_mode_info_structure {
@@ -173,11 +175,6 @@ char font[128][8] = {
     { 0x6E, 0x3B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+007E (~)
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
 };
-
-void initializeVideo() {
-    curX = FIRSTPOS;
-    printBorder();
-} 
 
 char * getPos(int x, int y) {
     return (void *) screen_info->framebuffer + (x + y*WIDTH)*3;
@@ -366,7 +363,7 @@ void strcpy(char * str1, char * str2) {
 }
 
 int strcmp(char * str1, char * str2) {
-    if ( str1[0] == 0)
+    if (str1[0] == 0)
         return 0;
     int i;
     for (i=0; str1[i] && str2[i]; i++) {

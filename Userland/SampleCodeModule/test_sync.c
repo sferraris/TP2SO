@@ -1,8 +1,10 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <test_sync.h>
 void inc(uint64_t sem, uint64_t value, uint64_t N);
 
 uint64_t my_create_process__(char * name, uint64_t sem, uint64_t value, uint64_t N){
-  char * argv[] = {(char *)&inc, (char *)name, 0,0,(char *) 1, (char *)sem, (char *)value, (char *)N};
+  char * argv[] = {(char *)&inc, (char *)name, BACKGROUND, STD_IN, (char *) STD_OUT, (char *)sem, (char *)value, (char *)N};
   return createProcess(8, argv);
 }
 
@@ -42,15 +44,9 @@ void inc(uint64_t sem, uint64_t value, uint64_t N){
   }
   
   for (i = 0; i < N; i++){
-    //putDec(i);
     if (sem) my_sem_wait(SEM_ID);
     slowInc(&global, value);
-    //printf("\nGLOBAL: ");
-    //putDec(global);
     if (sem) my_sem_post(SEM_ID);
-    //putDec(getPid());
-    //printf(" ");
-    //for (int j=0; j < 100000000;j++);
   }
 
   if (sem) my_sem_close(SEM_ID);

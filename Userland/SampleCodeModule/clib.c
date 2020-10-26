@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <clib.h>
 char operationBuffer[100] = {'0'};
 
@@ -79,6 +81,14 @@ void strcpy(char * str1, char * str2) {
     str1[i] = 0;
 }
 
+void strcat(char * str1, char * str2) {
+    int i;
+    for (i=0; str1[i] != 0; i++);
+    for (int j=0; str2[j] != 0; j++)
+        str1[i++] = str2[j];
+    str1[i] = 0;
+}
+
 int getHours() {
    return getTime(4);
 }
@@ -117,7 +127,7 @@ int isLetterHexa(char c) {
 
 int stringHexToInt(char * s) {
     int i=0;
-    int num;
+    int num = 0;
     int hex = 0;
     while (s[i] != 0) {
         if (isNumberHexa(s[i])) 
@@ -161,25 +171,30 @@ uint32_t uintToBase(uint64_t value, uint32_t base) {
 }
 
 void putDec(int num) {
-    int digits = uintToBase(num, 10);
-    write(3, operationBuffer, digits);
+    uintToBase(num, 10);
+    printf(operationBuffer);
 }
 
 void putHex(uint64_t num) {
-    int digits = uintToBase(num, 16);
-    write(3, operationBuffer, digits);
+    uintToBase(num, 16);
+    printf(operationBuffer);
 }
 
 void putFilledHex (uint64_t num) {
     int digits = uintToBase(num, 16);
     for (int i = 0; i < 16-digits; i++)
-        write(3, "0", 1);
-    write(3, operationBuffer, digits);
+        putChar('0');
+    printf(operationBuffer);
 }
 
 void putBin(uint64_t num) {
-    int digits = uintToBase(num, 2);
-    write(3, operationBuffer, digits);
+    uintToBase(num, 2);
+    printf(operationBuffer);
+}
+
+char * dectostr(uint64_t value) {
+    uintToBase(value, 10);
+    return operationBuffer;
 }
 
 uint64_t getTemp() {
@@ -213,10 +228,6 @@ int killProcess(int pid){
    return changeProcessStateAsm(pid,KILLED);
 }
 
-int changeProcessState(int pid,int state){
-    return changeProcessStateAsm(pid,state);
-}
-
 int blockProcess(int pid) {
     return changeProcessStateAsm(pid,BLOCKED);
 }
@@ -229,18 +240,6 @@ void changePriority(int pid, int pri) {
     if (pri < 0 || pri > 9)
         printf("Numero incorrecto de privilegio\n");
     niceAsm(pid,pri);
-}
-
-int getLock(int index) {
-    return _getLock(index);
-}
-
-void increaseSignal(int index) {
-    _increaseSignal(index);
-}
-
-void decreaseSignal(int index) {
-    _decreaseSignal(index);
 }
 
 int pipe(int p[2]) {

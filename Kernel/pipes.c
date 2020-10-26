@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <pipes.h>
 
 pipe_t pipes[MAXPIPES];
@@ -32,7 +34,7 @@ int pipewrite(pipe_t *p, char *addr, int n) {
 
 int piperead(pipe_t *p, char *addr, int n) {
     int i;
-    for (i = 0; i < n && p->data[p->nread % PIPESIZE] != -1; i++) { //ver compa
+    for (i = 0; i < n && p->data[p->nread % PIPESIZE] != -1; i++) {
         while (p->nread >= p->nwrite) {
             blockProcessPipe(p->rProcesses, getPid());
         }
@@ -47,7 +49,7 @@ int piperead(pipe_t *p, char *addr, int n) {
 
 int nextPipe() {
     int aux = 0;
-    while (pipes[aux].created != 0 && aux < MAXPIPES)
+    while (aux < MAXPIPES && pipes[aux].created != 0)
         aux++;
     return (aux == MAXPIPES) ? -1 : aux;
 }

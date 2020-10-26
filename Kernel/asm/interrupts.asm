@@ -28,10 +28,8 @@ EXTERN exceptionDispatcher
 EXTERN syscallDispatcher
 EXTERN schedule
 
-
 EXTERN printRandom
 EXTERN printRandomString
-
 
 SECTION .text
 
@@ -119,8 +117,6 @@ SECTION .text
 	iretq
 %endmacro
 
-
-
 %macro exceptionHandler 1
 	pushState
 
@@ -192,7 +188,6 @@ _cli:
 	cli
 	ret
 
-
 _sti:
 	sti
 	ret
@@ -242,7 +237,6 @@ _irq04Handler:
 ;USB
 _irq05Handler:
 	irqHandlerMaster 5
-
 
 ;Zero Division Exception
 _exception0Handler:

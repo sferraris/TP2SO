@@ -1,3 +1,5 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <protest.h>
 
 //TO BE INCLUDED
@@ -6,7 +8,7 @@ void endless_loop(){
 }
 
 uint32_t my_create_process(char * name){
-    char * argv[] = {(char *)endless_loop, name, 0};
+    char * argv[] = {(char *)endless_loop, name, BACKGROUND, STD_IN, STD_OUT};
     return createProcess(3, argv);
 }
 

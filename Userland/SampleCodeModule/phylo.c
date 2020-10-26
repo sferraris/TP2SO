@@ -1,7 +1,9 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 #include <phylo.h>
 
-#define LEFT(n) (i+n-1)%n
-#define RIGHT(n) (i+1)%n
+#define LEFT(n) (i+(n)-1)%(n)
+#define RIGHT(n) (i+1)%(n)
 
 char sems[MAXPHYLOS][5];
 int state[MAXPHYLOS];
@@ -108,7 +110,7 @@ void exitPhylo() {
 }
 
 void mainPhylo(int phyl) {
-    char * argv[] = {(char *)philosopher, "phylosopher", 0, 0, (char *)1, 0};
+    char * argv[] = {(char *)philosopher, "phylosopher", BACKGROUND, STD_IN, (char *)STD_OUT, 0};
     sem_open(GLOBAL,1);
     for (uint64_t i = 0; i < phyl; i++) {
         semCreate(i);
@@ -127,9 +129,4 @@ void mainPhylo(int phyl) {
             case 'e': exitPhylo();
         }
     }
-}
-
-void createPhylo() {
-    char * argv[] = {(char *)mainPhylo, "PhyloProcess", (char *)1, 0, (char *)1,(char *) 5}; 
-    createProcess(6, argv);
 }
