@@ -12,6 +12,11 @@ node * root;
 int index = 0;
 node * nodes;
 
+
+#ifdef MM_BUDDY
+
+
+
 node * createTreeRec(int level, void * pos, uint64_t size) {
     int aux = index;
     index++;
@@ -26,7 +31,7 @@ node * createTreeRec(int level, void * pos, uint64_t size) {
 }
 
 void createTree() {
-    root = createTreeRec(0, (void *)HEAPSTART, TOTALHEAP);
+    root = createTreeRec(0, HEAPSTART, TOTALHEAP);
 }
 
 void * lookPosRec(node * n, uint64_t nsize, uint64_t size, int level) {
@@ -49,6 +54,7 @@ void * lookPosRec(node * n, uint64_t nsize, uint64_t size, int level) {
 }
 
 void * malloc(uint64_t size) {
+    printString("Buddy");
     if (size > TOTALHEAP)
         return (void *)0;
     void * aux = lookPosRec(root, TOTALHEAP, size, 0);
@@ -74,13 +80,68 @@ void freeRec(node * n, void * pos) {
 }
 
 void free(void * p) {
-    if (p < (void *)HEAPSTART || p > (void *)(HEAPSTART + TOTALHEAP))
-        return;
+    if (p < HEAPSTART || p > (HEAPSTART + TOTALHEAP))
+        return -1;
     freeRec(root, p);
 }
 
 void initMem() {
-    memset((void *)HEAPSTART, 0, TOTALHEAP*2);
-    nodes = (node *) HEAPSTART + TOTALHEAP;
+    memset(HEAPSTART, 0, TOTALHEAP*2);
+    nodes = HEAPSTART + TOTALHEAP;
     createTree();
 }
+
+#else
+
+int bitmap[TOTALBLOCKS];
+
+int mapLocation (int blocks);
+void setBitmap (int loc, int blocks);
+void unsetBitmap (int loc);
+
+void * malloc (uint64_t size) {
+    printString("Bitmap");
+    uint64_t aux = size;
+    int blocksCount = (size/HEAPBLOCK) + (((size%HEAPBLOCK)==0)? 0 : 1);
+    int loc = mapLocation(blocksCount);
+    if (loc == -1)
+        return (void*) 0;
+    setBitmap (loc, blocksCount);
+    return (void *) (HEAPSTART+ loc*HEAPBLOCK); 
+}
+
+int mapLocation (int blocks) {
+    int avail = 0;
+    int i;
+    for (i=0; i < TOTALBLOCKS && avail < blocks; i++) {
+        if (bitmap[i] > EB)
+            avail = 0;
+        else
+            avail++;
+    }
+    return (avail < blocks)? -1 : (i-blocks);
+}
+
+void setBitmap (int loc, int blocks) {
+    int i;
+    for (i=0; i < blocks-1; i++)
+        bitmap[loc+i] = FB;
+    bitmap[loc+i] = EOB; 
+}
+
+void free(void * p) {
+    int aux = (int) p;
+    unsetBitmap((aux - HEAPSTART)/HEAPBLOCK);
+}
+
+void unsetBitmap (int loc) {
+    int i=loc;
+    while (bitmap[i] != EOB)
+        bitmap[i++] = EB;
+    bitmap[i] = EB;
+}
+
+void initMem() {
+}
+
+#endif
