@@ -52,7 +52,7 @@ int nextPipe() {
     return (aux == MAXPIPES) ? -1 : aux;
 }
 
-int pipeOpen(int p[2]) {
+uint64_t pipeOpen(int p[2]) {
     int aux = nextPipe();
     if (aux == -1)
         return -1;
@@ -89,10 +89,13 @@ void listBlockedProcesses(int * p, char * buf) {
     }
     strcat(buf, aux, cant-1);
 }
-
+char retpipes[MAXPIPES*100];
 char * listPipes() {
-    int cant = 0;
-    char ret[MAXPIPES*100] = {0}, numPipe[10], state[10], brp[50] = {0}, bwp[50] = {0};
+    int cant = 0, i = 0;
+    while (retpipes[i] != 0){
+        retpipes[i++] = 0;
+    }
+    char numPipe[10], state[10], brp[50] = {0}, bwp[50] = {0};
     for (int p=0; p < MAXPIPES; p++) {
         if (pipes[p].created != 0) {
             cant++;
@@ -104,10 +107,10 @@ char * listPipes() {
                            "State: ", state, " bytes to read\n",
                            "Blocked Read Processes: ", brp, "\n",
                            "Blocked Write Processes: ", bwp, "\n\n"};
-            strcat(ret, aux, 12);
+            strcat(retpipes, aux, 12);
         }
     }
     if (cant == 0)
-        strcpy(ret, "No pipes available\n");
-    return ret;
+        strcpy(retpipes, "No pipes available\n");
+    return retpipes;
 }

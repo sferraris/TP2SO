@@ -29,6 +29,11 @@ int foregroundFlag = 0;
 int foregroundProcesses[FOREGROUNDPROCESSES];
 int foregroundIndex = -1;
 
+void insertProcess(int pid, int pri) {
+    processLists[1 - currentList][pri][pid] = pid;
+}
+int chooseProcess();
+
 void * schedule(void * rsp) {
     if ( startflag == 0)
         return rsp;
@@ -70,19 +75,19 @@ void createAuxProcess() {
     uint64_t finalpos;
     uint64_t* stack = malloc(STACKSIZE);
     if (stack == (void*) 0)
-        return -1;
+        return ;
     finalpos = STACKSIZE;
     int pos = 0;
     int i = 1;
     stack[finalpos -i] = 0x0;
     i++;
-    stack[finalpos -i] = stack + finalpos;
+    stack[finalpos -i] = (uint64_t) stack + finalpos;
     i++;
     stack[finalpos -i] = 0x202;
     i++;
     stack[finalpos -i] = 0x8;
     i++;
-    stack[finalpos -i] = auxProcess;
+    stack[finalpos -i] = (uint64_t) auxProcess;
     i++;
     stack[finalpos -i] = 0;
     i++;
@@ -117,6 +122,10 @@ void createAuxProcess() {
     allProcesses[pos].stackPos = stack;
     allProcesses[pos].rsp = stack + STACKSIZE -i;
     auxProcessCreated = 1;
+}
+
+void swapList() {
+    currentList = 1 - currentList;
 }
 
 int chooseProcess() {
@@ -156,13 +165,7 @@ int chooseProcess() {
     return currentPid;
 }
 
-void swapList() {
-    currentList = 1 - currentList;
-}
 
-void insertProcess(int pid, int pri) {
-    processLists[1 - currentList][pri][pid] = pid;
-}
 
 int searchPos() {
     int pos = 1;
@@ -188,10 +191,10 @@ int updateForegroundList(){
     return j - 1;
 }
 
-int createProcess(int argc, char * argv[]) { //rip, name, foreground, input, output mas argumentos
+uint64_t createProcess(int argc, char * argv[]) { //rip, name, foreground, input, output mas argumentos
     if (totalProcess == PROCESSES)
         return -1;
-    if ( argv[2] == 1 && foregroundIndex + 1 == FOREGROUNDPROCESSES)
+    if ( (uint64_t)argv[2] == 1 && foregroundIndex + 1 == FOREGROUNDPROCESSES)
         return -1;
     uint64_t finalpos;
     uint64_t* stack = malloc(STACKSIZE);
@@ -206,31 +209,31 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, input, out
     int i = 1;
     stack[finalpos -i] = 0x0;
     i++;
-    stack[finalpos -i] = stack + finalpos;
+    stack[finalpos -i] = (uint64_t) stack + finalpos;
     i++;
     stack[finalpos -i] = 0x202;
     i++;
     stack[finalpos -i] = 0x8;
     i++;
-    stack[finalpos -i] = (void *) argv[0];
+    stack[finalpos -i] = (uint64_t) argv[0];
     i++;
     stack[finalpos -i] = 0;
     i++;
     stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = ( (argc > 8)? argv[8] : 0); //rcx
+    stack[finalpos -i] = (uint64_t)( (argc > 8)? argv[8] : 0); //rcx
     i++;
-    stack[finalpos -i] = ( (argc > 7)? argv[7] : 0); //rdx
+    stack[finalpos -i] = (uint64_t)( (argc > 7)? argv[7] : 0); //rdx
     i++;
     stack[finalpos -i] = 0;
     i++;
-    stack[finalpos -i] = ( (argc > 5)? argv[5] : 0); //rsi
+    stack[finalpos -i] = (uint64_t)( (argc > 5)? argv[5] : 0); //rsi
     i++;
-    stack[finalpos -i] = ( (argc > 6)? argv[6] : 0); //rdi
+    stack[finalpos -i] = (uint64_t)( (argc > 6)? argv[6] : 0); //rdi
     i++;
-    stack[finalpos -i] = ( (argc > 9)? argv[9] : 0); //r8
+    stack[finalpos -i] = (uint64_t)( (argc > 9)? argv[9] : 0); //r8
     i++;
-    stack[finalpos -i] = ( (argc > 10)? argv[10] : 0); //r9
+    stack[finalpos -i] = (uint64_t) ( (argc > 10)? argv[10] : 0); //r9
     i++;
     stack[finalpos -i] = 0; //10
     i++;
@@ -248,12 +251,12 @@ int createProcess(int argc, char * argv[]) { //rip, name, foreground, input, out
     allProcesses[pos].stackPos = stack;
     allProcesses[pos].rsp = stack + STACKSIZE -i;
     allProcesses[pos].priority = DEFAULTPRI; //parametro
-    allProcesses[pos].foreground = (int) argv[2]; //parametro
+    allProcesses[pos].foreground = (uint64_t) argv[2]; //parametro
     allProcesses[pos].name = argv[1];
     allProcesses[pos].fd[0] = 0;
     allProcesses[pos].fd[1] = 1;
-    allProcesses[pos].fd[2] = argv[3];
-    allProcesses[pos].fd[3] = argv[4];
+    allProcesses[pos].fd[2] = (uint64_t) argv[3];
+    allProcesses[pos].fd[3] = (uint64_t) argv[4];
     allProcesses[pos].state = READY;
     allProcesses[pos].waiting = 0;
     allProcesses[pos].waitingForChar = 0;
@@ -303,7 +306,7 @@ void liberateResourcesPid(int pid) {
     totalProcess--;
 }
 
-int changeStateFromShell(int pid, int state) {
+uint64_t changeStateFromShell(int pid, int state) {
     if (state == BLOCKED && allProcesses[pid].state == BLOCKED)
         return changeStatePid(pid, READY);
     return changeStatePid(pid, state);
@@ -320,7 +323,7 @@ int changeStatePid(int pid, int state) {
     return 0;
 }
 
-int getPid() {
+uint64_t getPid() {
     return currentPid;
 }
 
@@ -335,16 +338,19 @@ void nice(int pid,int pri) {
         allProcesses[pid].priority = pri;
     }
 }
-
+char retsch[PROCESSES*100];
 char * listProcesses() {
-    int j=0;
-    char ret[PROCESSES*100] = {0}, auxID[10], auxPri[10], auxRSP[10], auxRBP[10];
+    int j=0, i = 0;
+    while (retsch[i] != 0){
+        retsch[i++] = 0;
+    }
+    char auxID[10], auxPri[10], auxRSP[10], auxRBP[10];
     for (int pid=0; pid < PROCESSES && j < totalProcess;pid++) {
         if (allProcesses[pid].state != KILLED) {
             strcpy(auxID, dectostr(pid));
             strcpy(auxPri, dectostr(allProcesses[pid].priority));
-            strcpy(auxRSP, hextostr(allProcesses[pid].rsp));
-            strcpy(auxRBP, hextostr(allProcesses[pid].stackPos + STACKSIZE));
+            strcpy(auxRSP, hextostr((uint64_t)allProcesses[pid].rsp));
+            strcpy(auxRBP, hextostr ((uint64_t)(allProcesses[pid].stackPos + STACKSIZE)));
             char *aux[] = {"Nombre: ", allProcesses[pid].name, "\t\t",
                            "ID: ", auxID, "\t\t",
                            "State: ", (allProcesses[pid].state == 1) ? "BLOCKED" : "READY", "\t\t",
@@ -352,11 +358,11 @@ char * listProcesses() {
                            "Foreground: ", (allProcesses[pid].foreground == 1) ? "Foreground" : "Background", "\t\t",
                            "RSP: ", "0x", auxRSP, "\t\t",
                            "RBP: ", "0x", auxRBP, "\n"};
-            strcat(ret, aux, 23);
+            strcat(retsch, aux, 23);
             j++;
         }
     }
-    return ret;
+    return retsch;
 }
 
 int isBack() {

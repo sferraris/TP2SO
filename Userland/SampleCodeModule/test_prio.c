@@ -7,20 +7,6 @@ uint64_t _my_getpid(){
   return getPid();
 }
 
-void _endless_loop(){
-  uint64_t pid = _my_getpid();
-
-  while(1){
-    putDec(pid);
-    printf(" ");
-    bussy_wait(MINOR_WAIT);
-  }
-}
-
-uint64_t _my_create_process(char * name){
-  char * argv[] = {_endless_loop, name, 0};
-  return createProcess(3, argv);
-}
 
 void _my_nice(uint64_t pid, uint64_t newPrio){
   changePriority(pid, newPrio);
@@ -41,6 +27,22 @@ uint32_t _my_unblock(uint32_t pid){
 void bussy_wait(uint64_t n){
   uint64_t i;
   for (i = 0; i < n; i++);
+}
+
+
+void _endless_loop(){
+  uint64_t pid = _my_getpid();
+
+  while(1){
+    putDec(pid);
+    printf(" ");
+    bussy_wait(MINOR_WAIT);
+  }
+}
+
+uint64_t _my_create_process(char * name){
+  char * argv[] = {(char *)_endless_loop, name, 0};
+  return createProcess(3, argv);
 }
 
 #define TOTAL_PROCESSES 3
@@ -104,5 +106,6 @@ void test_prio(){
 
 int priorityTest(){
   test_prio();
+  exit();
   return 0;
 }

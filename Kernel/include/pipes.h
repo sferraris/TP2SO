@@ -3,6 +3,7 @@
 
 #include <scheduler.h>
 #include <video_driver.h>
+#include <stdint.h>
 
 #define MAXPIPES 10
 #define PIPESIZE 1000
@@ -19,7 +20,7 @@ typedef struct {
 
 int pipewrite(pipe_t *p,char *addr,int n);
 int piperead(pipe_t *p, char *addr, int n);
-int pipeOpen(int p[2]);
+uint64_t pipeOpen(int p[2]);
 void pipeClose(int index);
 pipe_t * getPipe(int p);
 char * listPipes();

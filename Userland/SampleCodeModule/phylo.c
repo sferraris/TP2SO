@@ -6,7 +6,7 @@
 char sems[MAXPHYLOS][5];
 int state[MAXPHYLOS];
 int pidArray[MAXPHYLOS];
-int cantPhylos;
+uint64_t cantPhylos;
 
 void printPhylos() {
     for (int i = 0; i< cantPhylos; i++) {
@@ -72,7 +72,7 @@ void addPhylo() {
     sem_wait(GLOBAL);
     if (cantPhylos < MAXPHYLOS) {
         semCreate(cantPhylos);
-        char *argv[] = {philosopher, "phylosopher", 0, 0, 1, cantPhylos};
+        char *argv[] = {(char *)philosopher, "phylosopher", 0, 0,(char *) 1, (char *)cantPhylos};
         pidArray[cantPhylos] = createProcess(6, argv);
         cantPhylos++;
     }
@@ -108,11 +108,11 @@ void exitPhylo() {
 }
 
 void mainPhylo(int phyl) {
-    char * argv[] = {philosopher, "phylosopher", 0, 0, 1, 0};
+    char * argv[] = {(char *)philosopher, "phylosopher", 0, 0, (char *)1, 0};
     sem_open(GLOBAL,1);
-    for (int i = 0; i < phyl; i++) {
+    for (uint64_t i = 0; i < phyl; i++) {
         semCreate(i);
-        argv[5] = i;
+        argv[5] =(char *) i;
         sem_wait(GLOBAL);
         cantPhylos++;
         sem_post(GLOBAL);
@@ -130,6 +130,6 @@ void mainPhylo(int phyl) {
 }
 
 void createPhylo() {
-    char * argv[] = {mainPhylo, "PhyloProcess", 1, 0, 1, 5};
+    char * argv[] = {(char *)mainPhylo, "PhyloProcess", (char *)1, 0, (char *)1,(char *) 5}; 
     createProcess(6, argv);
 }

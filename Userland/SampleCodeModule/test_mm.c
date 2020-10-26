@@ -36,7 +36,7 @@ void test_mm(){
     while(rq < MAX_BLOCKS && total < MAX_MEMORY){
       mm_rqs[rq].size = GetUniform(MAX_MEMORY - total - 1) + 1;
       void* aux = malloc(mm_rqs[rq].size);
-      if ( aux > 0x1000000 ){
+      if ( aux > (void *) 0x1000000 ){
         printf("MALLOC DE MIERDA");
         return;
       }
@@ -58,9 +58,9 @@ void test_mm(){
     uint32_t i;
     for (i = 0; i < rq; i++)
       if (mm_rqs[i].address != (void *)0) {
-          printf("Adress: ");
-          putHex(mm_rqs[i].address);
-          putChar(' ');
+          //printf("Adress: ");
+          //putHex(mm_rqs[i].address);
+          //putChar(' ');
           memset1(mm_rqs[i].address, i, mm_rqs[i].size); // TODO: Port this call as required
       }
     printf("Salio de set ");
@@ -80,5 +80,6 @@ void test_mm(){
 
 int testMM(){
   test_mm();
+  exit();
   return 0;
 }

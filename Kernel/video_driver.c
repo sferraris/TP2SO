@@ -38,7 +38,7 @@ struct vbe_mode_info_structure {
 	uint8_t reserved1[206];
 } __attribute__ ((packed));
 
-struct vbe_mode_info_structure * screen_info = 0x5C00;
+struct vbe_mode_info_structure * screen_info = (struct vbe_mode_info_structure *) 0x5C00;
 char operationBuffer[100] = {'0'};
 
 int curX = FIRSTPOS;
@@ -180,7 +180,7 @@ void initializeVideo() {
 } 
 
 char * getPos(int x, int y) {
-    return screen_info->framebuffer + (x + y*WIDTH)*3;
+    return (void *) screen_info->framebuffer + (x + y*WIDTH)*3;
 }
 
 void putRGB(char* pos, int rgb) {
@@ -262,7 +262,7 @@ void printColorChar(char let, int rgb) {
     else {
         int x,y;
 	    int set=0;
-	    char * bitmap=font[let];
+	    char * bitmap=font[(int) let];
         for (y=0; y < 8; y++) {
             for (x=0; x < 8; x++) {
                 set = bitmap[y] & 1 << x;

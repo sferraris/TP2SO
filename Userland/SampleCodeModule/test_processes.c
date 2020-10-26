@@ -6,7 +6,7 @@ void endless_loop(){
 }
 
 uint32_t my_create_process(char * name){
-    char * argv[] = {endless_loop, name, 0};
+    char * argv[] = {(char *)endless_loop, name, 0};
     return createProcess(3, argv);
 }
 
@@ -93,5 +93,6 @@ void test_processes(){
 
 int proTest(){
   test_processes();
+  exit();
   return 0;
 }

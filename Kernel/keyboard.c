@@ -21,7 +21,7 @@ static char keySet[87][3] =
 void saveChar(char c);
 
 void key_handler() {
-    char key = getKey();
+    int key = getKey();
     switch(key) {
         case 42:case 54:case 58:
         case 18446744073709551530:

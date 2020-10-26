@@ -7,6 +7,7 @@
 #include <protest.h>
 #include <test_prio.h>
 #include <test_sync.h>
+#include <phylo.h>
 
 #define BACKSPACE 8
 #define TAB 9

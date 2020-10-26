@@ -3,9 +3,9 @@
 
 char *cpuVendor(char *result);
 char *cpuBrand(char *buffer);
-int cpuModel();
+uint64_t cpuModel();
 uint64_t rebootProgram(uint64_t rip,uint64_t rsp);
-int getCpuTemp();
+uint64_t getCpuTemp();
 uint8_t readRTC(int fd);
 char getKey();
 

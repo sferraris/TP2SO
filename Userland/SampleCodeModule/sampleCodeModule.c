@@ -2,7 +2,7 @@
 /* sampleCodeModule.c */
 
 int main() {
-    char * argv[] = {initShell, "Shell", 1, 0, 1};
+    char * argv[] = {(char *)initShell, "Shell", (char *)1, 0,(char *) 1};
     createProcess(5, argv);
 	return 0;
 }

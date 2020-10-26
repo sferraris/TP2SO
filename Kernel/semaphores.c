@@ -12,7 +12,7 @@ typedef struct {
 
 semaphore_t semaphores[TOTALSEM];
 int cantSem = 0;
-int bigLock = 0;
+uint64_t bigLock = 0;
 
 int getSem(char * name) {
     int aux = -1;
@@ -158,6 +158,16 @@ uint64_t sem_wait(char * name) {
     return 1;
 }
 
+void wakeup(int sem) {
+    int index = findNextProcess(sem);
+    if (index != -1) {
+        int pid = semaphores[sem].processesList[index];
+        semaphores[sem].processesList[index] = 0;
+        semaphores[sem].cantProcesses--;
+        changeStatePid(pid, READY); //Desbloquear el proceso
+    }
+}
+
 uint64_t sem_post(char * name) {
     int index = getSem(name);
     if (index != -1) {
@@ -167,16 +177,6 @@ uint64_t sem_post(char * name) {
         release();
     }
     return 1;
-}
-
-void wakeup(int sem) {
-    int index = findNextProcess(sem);
-    if (index != -1) {
-        int pid = semaphores[sem].processesList[index];
-        semaphores[sem].processesList[index] = 0;
-        semaphores[sem].cantProcesses--;
-        changeStatePid(pid, READY); //Desbloquear el proceso
-    }
 }
 
 void listBProcesses(int * s, char * buf, int cProcesses) {
@@ -190,10 +190,13 @@ void listBProcesses(int * s, char * buf, int cProcesses) {
     }
     strcat(buf, aux, cant-1);
 }
-
+char ret[TOTALSEM*100];
 char * printSemaphores() {
-    int cant = 0;
-    char ret[TOTALSEM*100] = {0}, status[10], bp[50] = {0};
+    int cant = 0, i = 0;
+    while (ret[i] != 0){
+        ret[i++] = 0;
+    }
+    char status[10], bp[50] = {0};
     for (int s=0; s < TOTALSEM; s++) {
         if (semaphores[s].name != 0) {
             cant++;

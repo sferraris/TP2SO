@@ -26,7 +26,7 @@ node * createTreeRec(int level, void * pos, uint64_t size) {
 }
 
 void createTree() {
-    root = createTreeRec(0, HEAPSTART, TOTALHEAP);
+    root = createTreeRec(0, (void *)HEAPSTART, TOTALHEAP);
 }
 
 void * lookPosRec(node * n, uint64_t nsize, uint64_t size, int level) {
@@ -74,13 +74,13 @@ void freeRec(node * n, void * pos) {
 }
 
 void free(void * p) {
-    if (p < HEAPSTART || p > (HEAPSTART + TOTALHEAP))
-        return -1;
+    if (p < (void *)HEAPSTART || p > (void *)(HEAPSTART + TOTALHEAP))
+        return;
     freeRec(root, p);
 }
 
 void initMem() {
-    memset(HEAPSTART, 0, TOTALHEAP*2);
-    nodes = HEAPSTART + TOTALHEAP;
+    memset((void *)HEAPSTART, 0, TOTALHEAP*2);
+    nodes = (node *) HEAPSTART + TOTALHEAP;
     createTree();
 }

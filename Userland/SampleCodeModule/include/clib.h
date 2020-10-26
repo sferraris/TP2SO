@@ -31,7 +31,7 @@ void putFilledHex (uint64_t num);
 uint64_t getTemp();
 int stringHexToInt(char * s);
 void * malloc(uint64_t size);
-void getFree(void * p);
+void free(void * p);
 int createProcess(int argc, char * argv[]);
 void exit();
 void yield();
@@ -55,5 +55,7 @@ int isVowel(char c);
 char * listSemaphores();
 void strcpy(char * str1, char * str2);
 void wait(int pid);
+int strlen(char * buffer);
+int isNumberHexa(char c);
 
 #endif

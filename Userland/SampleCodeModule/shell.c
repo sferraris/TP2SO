@@ -173,22 +173,22 @@ void inforeg() {
 }
 
 void TMM(){
-    char * argv[] = {testMM, "Testmm", 0, 0, 1};
+    char * argv[] = {(char *)testMM, "Testmm", 0, 0, (char *)1};
     createProcess(5, argv);
 }
 
 void TPRO(){
-    char * argv[] = {proTest, "testprocesses", 0, 0, 1};
+    char * argv[] = {(char *)proTest, "testprocesses", 0, 0,(char *) 1};
     createProcess(5, argv);
 }
 
 void TPRI(){
-    char * argv[] = {priorityTest, "testprio", 0, 0, 1};
+    char * argv[] = {(char *)priorityTest, "testprio", 0, 0, (char *)1};
     createProcess(5, argv);
 }
 
 void TSYNC(){
-    char * argv[] = {Tsync, "testsem", 0, 0, 1};
+    char * argv[] = {(char *)Tsync, "testsem", 0, 0,(char *) 1};
     createProcess(5, argv);
 }
 
@@ -235,14 +235,14 @@ void catFunction() {
     exit();
 }
 
-int cat(int input, int output, int left){
-    char * argv[] = {catFunction, "cat", 0, input, output};
+int cat(uint64_t input, uint64_t output, int left){
+    char * argv[] = {(char *)catFunction, "cat", 0, (char *)input, (char *)output};
     if (left == 1) {
         int p[2];
         int pipeId = pipe(p);
-        argv[3] = p[0];
+        argv[3] = (char *) p[0];
         int catID = createProcess(5, argv);
-        char * argv2[] = {writingProcess, "wp", 1, 0, p[1]};
+        char * argv2[] = {(char *)writingProcess, "wp", (char *)1, 0, (char *)p[1]};
         createProcess(5, argv2);
         wait(catID);
         close(pipeId);
@@ -268,14 +268,14 @@ void wcFunction(){
     exit();
 }
 
-int wc(int input, int output, int left){
-    char * argv[] = {wcFunction, "wc", 0, input, output};
+int wc(uint64_t input, uint64_t output, int left){
+    char * argv[] = {(char *)wcFunction, "wc", 0,(char *)input, (char *)output};
     if (left == 1) {
         int p[2];
         int pipeId = pipe(p);
-        argv[3] = p[0];
+        argv[3] = (char *)p[0];
         int wcId = createProcess(5, argv);
-        char * argv2[] = {writingProcess, "wp", 1, 0, p[1]};
+        char * argv2[] = {(char *)writingProcess, "wp", (char *)1, 0, (char *)p[1]};
         createProcess(5, argv2);
         wait(wcId);
         close(pipeId);
@@ -309,14 +309,14 @@ void filterFunction(){
     exit();
 }
 
-int filter(int input, int output, int left){
-    char * argv[] = {filterFunction, "filter", 0, input, output};
+int filter(uint64_t input, uint64_t output, int left){
+    char * argv[] = {(char *)filterFunction, "filter", 0, (char *)input,(char *) output};
     if (left == 1) {
         int p[2];
         int pipeId = pipe(p);
-        argv[3] = p[0];
+        argv[3] = (char*) p[0];
         int filterId = createProcess(5, argv);
-        char * argv2[] = {writingProcess, "wp", 1, 0, p[1]};
+        char * argv2[] = {(char *)writingProcess, "wp", (char *)1, 0, (char *)p[1]};
         createProcess(5, argv2);
         wait(filterId);
         close(pipeId);
@@ -324,6 +324,20 @@ int filter(int input, int output, int left){
     }
     else
         return createProcess(5, argv);
+}
+void loop() {
+    int pidPrueba = getPid();
+    int i;
+    while(1) {
+        for (i=0; i < 100000000; i++);
+        putDec(pidPrueba);
+    }
+}
+
+void createLoop() {
+    uint64_t fg = (shellBuffer[4] == '&') ? 0 : 1;
+    char * argv[] = {(char *)loop,"Loop",(char *) fg, 0,(char *)1};
+    createProcess(5, argv);
 }
 
 int commandSwitch(int command,int input,int output, int left) { //juntar todos los procesos pipeables y poner el numero en process command
@@ -353,6 +367,7 @@ int commandSwitch(int command,int input,int output, int left) { //juntar todos l
         case 22:TSYNC();break;
         default:printf("Error: command doesnt exist\n");
     }
+    return 0;
 }
 
 void processPipes(int izq,int der) {
@@ -389,20 +404,7 @@ void processCommand() {
         commandSwitch(command, 0, 1, 1);
 }
 
-void loop() {
-    int pidPrueba = getPid();
-    int i;
-    while(1) {
-        for (i=0; i < 100000000; i++);
-        putDec(pidPrueba);
-    }
-}
 
-void createLoop() {
-    int fg = (shellBuffer[4] == '&') ? 0 : 1;
-    char * argv[] = {loop, "Loop", fg, 0, 1};
-    createProcess(5, argv);
-}
 
 void initShell() {
     while (1) { 

@@ -5,6 +5,7 @@
 #include <interrupts.h>
 #include <video_driver.h>
 #include <semaphores.h>
+#include <stdint.h>
 
 #define STACKSIZE (1024 * 4)
 #define PROCESSES 100
@@ -16,17 +17,18 @@
 #define FOREGROUNDPROCESSES 10
 
 void * schedule(void * rsp);
-int createProcess(int argc, char * argv[]);
+uint64_t createProcess(int argc, char * argv[]);
 int changeStatePid(int pid, int state);
 void liberateResourcesPid(int pid);
-int getPid();
+uint64_t getPid();
 char * listProcesses();
 void nice(int pid,int pri);
 int isBack();
 void detectChar();
 int getFD(int f);
-int changeStateFromShell(int pid, int state);
+uint64_t changeStateFromShell(int pid, int state);
 void waitForChar(int pid);
 void wait(int pid);
+void yield();
 
 #endif

@@ -2,7 +2,7 @@
 void inc(uint64_t sem, uint64_t value, uint64_t N);
 
 uint64_t my_create_process__(char * name, uint64_t sem, uint64_t value, uint64_t N){
-  char * argv[] = {&inc, name, 0, 0, 1, sem, value, N};
+  char * argv[] = {(char *)&inc, (char *)name, 0,0,(char *) 1, (char *)sem, (char *)value, (char *)N};
   return createProcess(8, argv);
 }
 
@@ -48,9 +48,9 @@ void inc(uint64_t sem, uint64_t value, uint64_t N){
     //printf("\nGLOBAL: ");
     //putDec(global);
     if (sem) my_sem_post(SEM_ID);
-    putDec(getPid());
-    printf(" ");
-    for (int j=0; j < 100000000;j++);
+    //putDec(getPid());
+    //printf(" ");
+    //for (int j=0; j < 100000000;j++);
   }
 
   if (sem) my_sem_close(SEM_ID);
@@ -90,5 +90,6 @@ void test_no_sync(){
 
 int Tsync(){
   test_sync();
+  exit();
   return 0;
 }
